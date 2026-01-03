@@ -17,421 +17,414 @@
       color: #333333;
     }
     .day-content { display: none; }
-    .day-content.active { display: block; }
+    .day-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
     .day-btn.active {
       background-color: #1e3a8a; /* bg-blue-900 */
       color: white;
       border-color: #1e3a8a;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
     }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .hero-gradient {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+    }
+    .japanese-dot {
+      position: relative;
+    }
+    .japanese-dot::before {
+      content: '';
+      position: absolute;
+      left: -41px;
+      top: 10px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border: 2px solid #60a5fa; /* blue-400 */
+      border-radius: 50%;
+      z-index: 10;
+    }
   </style>
 </head>
 <body class="min-h-screen pb-20">
 
   <!-- Hero Header -->
-  <header class="relative h-[60vh] md:h-[70vh] w-full overflow-hidden flex items-center justify-center">
+  <header class="relative h-[65vh] w-full overflow-hidden flex items-center justify-center">
     <img 
       src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" 
       alt="Mount Fuji Winter View" 
-      class="absolute inset-0 w-full h-full object-cover filter brightness-[0.75]"
+      class="absolute inset-0 w-full h-full object-cover filter brightness-[0.8]"
     />
+    <div class="absolute inset-0 hero-gradient"></div>
     <div class="relative z-10 text-center text-white px-4">
       <div class="mb-4 inline-block px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold tracking-widest uppercase">
-        Travel Guide 2026
+        2026 Winter Travel Guide
       </div>
-      <h1 class="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg tracking-tight">
+      <h1 class="text-4xl md:text-6xl font-bold mb-4 drop-shadow-2xl tracking-tight">
         2026 東京冬日海陸空之旅
       </h1>
       <p class="text-lg md:text-xl font-light tracking-[0.3em] opacity-90">
-        Tokyo Winter Journey: Land, Sea & Sky
+        Tokyo Journey: Land, Sea & Sky
       </p>
-      <div class="mt-12 flex justify-center gap-8 text-sm font-medium tracking-wide">
-        <span class="flex items-center gap-2">
-          <i data-lucide="plane" class="w-5 h-5"></i> FEB 24 - FEB 28
+      <div class="mt-12 flex justify-center gap-4 text-sm font-medium tracking-wide">
+        <span class="flex items-center gap-2 bg-black/30 px-5 py-2.5 rounded-full backdrop-blur-sm border border-white/10">
+          <i data-lucide="calendar" class="w-4 h-4"></i> FEB 24 (Tue) - FEB 28 (Sat)
         </span>
       </div>
     </div>
   </header>
 
-  <!-- Basic Info Section -->
+  <!-- Quick Info -->
   <div class="max-w-4xl mx-auto px-4 -mt-16 relative z-20">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-5 border border-gray-50">
-        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
-          <i data-lucide="building" class="w-6 h-6"></i>
+      <div class="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-5 border border-gray-50 hover:shadow-2xl transition-all">
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <i data-lucide="hotel" class="w-6 h-6"></i>
         </div>
         <div>
-          <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Accommodation</p>
+          <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Accommodation</p>
           <h3 class="font-bold text-gray-800 text-lg">東橫INN 東京三之輪站前</h3>
-          <p class="text-sm text-gray-500">近地鐵日比谷線三之輪站</p>
+          <p class="text-sm text-gray-500">地鐵日比谷線直達</p>
         </div>
       </div>
-      <div class="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-5 border border-gray-50">
-        <div class="w-12 h-12 bg-blue-900 text-white rounded-full flex items-center justify-center">
-          <i data-lucide="train" class="w-6 h-6"></i>
+      <div class="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-5 border border-gray-50 hover:shadow-2xl transition-all">
+        <div class="w-12 h-12 bg-blue-900 text-white rounded-full flex items-center justify-center flex-shrink-0">
+          <i data-lucide="ticket" class="w-6 h-6"></i>
         </div>
         <div>
-          <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Transport</p>
-          <h3 class="font-bold text-gray-800 text-lg">Tokyo Subway 72H Pass</h3>
-          <p class="text-sm text-gray-500">2/25 10:00 啟用 | 2/28 10:00 失效</p>
+          <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Transport</p>
+          <h3 class="font-bold text-gray-800 text-lg">Subway 72H + Skyliner</h3>
+          <p class="text-sm text-gray-500">2/25 10:00 啟用</p>
         </div>
       </div>
     </div>
   </div>
 
-  <main class="mt-12">
-    <!-- Timeline Section -->
-    <section class="mb-12">
+  <main class="mt-16">
+    <!-- Day Selector -->
+    <section class="max-w-4xl mx-auto px-4 mb-10">
       <div class="text-center mb-8">
-        <i data-lucide="compass" class="mx-auto text-blue-900 mb-4 w-8 h-8"></i>
+        <i data-lucide="map" class="mx-auto text-blue-900 mb-4 w-8 h-8 opacity-80"></i>
         <h2 class="text-3xl font-bold text-gray-800">五日精選行程</h2>
-        <div class="w-12 h-1 bg-blue-900 mx-auto mt-4 rounded-full"></div>
+        <div class="w-12 h-1 bg-blue-900 mx-auto mt-4 rounded-full opacity-30"></div>
       </div>
       
-      <div class="w-full max-w-4xl mx-auto px-4 py-8">
-        <!-- Day Selector -->
-        <div class="flex overflow-x-auto pb-4 mb-8 scrollbar-hide space-x-2 justify-start md:justify-center">
-          <button onclick="switchDay(1)" id="btn-day-1" class="day-btn active flex-shrink-0 px-8 py-2 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-medium">Day 1</button>
-          <button onclick="switchDay(2)" id="btn-day-2" class="day-btn flex-shrink-0 px-8 py-2 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-medium">Day 2</button>
-          <button onclick="switchDay(3)" id="btn-day-3" class="day-btn flex-shrink-0 px-8 py-2 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-medium">Day 3</button>
-          <button onclick="switchDay(4)" id="btn-day-4" class="day-btn flex-shrink-0 px-8 py-2 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-medium">Day 4</button>
-          <button onclick="switchDay(5)" id="btn-day-5" class="day-btn flex-shrink-0 px-8 py-2 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-medium">Day 5</button>
-        </div>
-
-        <!-- Day 1 Content -->
-        <div id="content-day-1" class="day-content active bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-gray-100">
-          <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">抵達東京：古都點燈</h2>
-            <p class="text-gray-400 font-light tracking-widest uppercase">2/24 (Mon)</p>
-          </div>
-          <div class="relative border-l-2 border-gray-100 ml-4 pl-8 space-y-12">
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 16:15</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="train" class="text-blue-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">落地成田機場 (NRT)</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 17:30</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="train" class="text-blue-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">搭乘 Skyliner</h3><p class="text-sm text-gray-500 italic">已註冊人臉辨識驗票</p></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 18:45</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="home" class="text-green-600 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">東橫INN 三之輪站前 Check-in</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 20:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">淺草寺夜間點燈巡禮</h3></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Day 2 Content -->
-        <div id="content-day-2" class="day-content bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-gray-100">
-          <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">藝術與地標：雲端展望</h2>
-            <p class="text-gray-400 font-light tracking-widest uppercase">2/25 (Tue)</p>
-          </div>
-          <div class="relative border-l-2 border-gray-100 ml-4 pl-8 space-y-12">
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="train" class="text-blue-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">啟用 Subway 72H 券</h3><p class="text-sm text-gray-500 italic">三之輪站出發</p></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 11:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="utensils" class="text-orange-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">築地市場早午餐</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 12:30</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">teamLab Planets (豐洲)</h3><p class="text-sm text-gray-500 italic">需提前預約 (12:30 入場)</p></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 16:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">澀谷 SKY (夕陽場)</h3><p class="text-sm text-gray-500 italic">最佳拍照時段</p></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Day 3-5 Placeholder for brevity, but let's include all to be complete -->
-        <div id="content-day-3" class="day-content bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-gray-100">
-          <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">富士山經典：湖畔絕景</h2>
-            <p class="text-gray-400 font-light tracking-widest uppercase">2/26 (Wed)</p>
-          </div>
-          <div class="relative border-l-2 border-gray-100 ml-4 pl-8 space-y-12">
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 07:50</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="train" class="text-blue-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">銀座 GinzaNovo 集合</h3><p class="text-sm text-gray-500 italic">富士山一日遊巴士</p></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">新倉山五重塔 & 日川時計店</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 13:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">忍野八海 & 天晴號遊船</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 19:30</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="shopping-bag" class="text-pink-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">銀座 Uniqlo/MUJI 採買</h3></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="content-day-4" class="day-content bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-gray-100">
-          <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">潮流大採買：都會光影</h2>
-            <p class="text-gray-400 font-light tracking-widest uppercase">2/27 (Thu)</p>
-          </div>
-          <div class="relative border-l-2 border-gray-100 ml-4 pl-8 space-y-12">
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">明治神宮參拜</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 12:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="shopping-bag" class="text-pink-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">原宿/裏原宿貓街</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 15:30</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">新宿 Lumine & 3D 貓咪</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 18:30</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="map-pin" class="text-gray-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">惠比壽花園廣場 (38F 夜景)</h3></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="content-day-5" class="day-content bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-gray-100">
-          <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">最後巡禮：下町採購</h2>
-            <p class="text-gray-400 font-light tracking-widest uppercase">2/28 (Fri)</p>
-          </div>
-          <div class="relative border-l-2 border-gray-100 ml-4 pl-8 space-y-12">
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="home" class="text-green-600 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">三之輪飯店退房</h3><p class="text-sm text-gray-500 italic">Subway 72H 券失效</p></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 11:00</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="shopping-bag" class="text-pink-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">上野阿美橫丁最後補貨</h3></div>
-                </div>
-              </div>
-            </div>
-            <div class="relative">
-              <div class="absolute -left-[41px] mt-1.5 w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                <div class="text-gray-400 md:w-20 font-medium text-sm flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 16:40</div>
-                <div class="flex items-start gap-3">
-                  <i data-lucide="train" class="text-blue-500 w-5 h-5 mt-1"></i>
-                  <div><h3 class="text-lg font-medium">上野站搭乘 Skyliner</h3></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="flex overflow-x-auto pb-4 scrollbar-hide space-x-2 justify-start md:justify-center">
+        <button onclick="switchDay(1)" id="btn-day-1" class="day-btn active flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 1</button>
+        <button onclick="switchDay(2)" id="btn-day-2" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 2</button>
+        <button onclick="switchDay(3)" id="btn-day-3" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 3</button>
+        <button onclick="switchDay(4)" id="btn-day-4" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 4</button>
+        <button onclick="switchDay(5)" id="btn-day-5" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 5</button>
       </div>
     </section>
 
-    <!-- Tickets Section -->
-    <section class="max-w-4xl mx-auto px-4 py-12">
-      <div class="flex items-center gap-3 mb-8 border-b-2 border-blue-100 pb-2">
-        <i data-lucide="bell" class="text-blue-500 w-6 h-6"></i>
-        <h2 class="text-2xl font-semibold text-gray-800">重要購票提醒</h2>
+    <!-- Itinerary Content Area -->
+    <section class="max-w-4xl mx-auto px-4">
+      <!-- Day 1 -->
+      <div id="content-day-1" class="day-content active bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+        <div class="mb-12 border-b border-gray-50 pb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">抵達東京：古都巡禮</h2>
+          <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/24 (Tue) <span class="text-blue-900 ml-2 font-bold">火曜日</span></p>
+        </div>
+        <div class="relative border-l-2 border-gray-100 ml-4 pl-10 space-y-12">
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">16:15</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">落地成田機場 (NRT)</h3>
+                <p class="text-sm text-gray-500 mt-1">辦理入境與領取交通票卡</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">18:45</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">三之輪飯店 Check-in</h3>
+                <p class="text-sm text-gray-500 mt-1">東橫INN 下榻休息</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">20:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">淺草寺夜間點燈</h3>
+                <p class="text-sm text-gray-500 mt-1">雷門與仲見世通散策</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">21:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">晴空塔 Solamachi</h3>
+                <p class="text-sm text-gray-500 mt-1">晚餐與伴手禮採買</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
+      <!-- Day 2 -->
+      <div id="content-day-2" class="day-content bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+        <div class="mb-12 border-b border-gray-50 pb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">藝術與夕陽：澀谷之巔</h2>
+          <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/25 (Wed) <span class="text-blue-900 ml-2 font-bold">水曜日</span></p>
+        </div>
+        <div class="relative border-l-2 border-gray-100 ml-4 pl-10 space-y-12">
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">12:30</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">teamLab Planets (豐洲)</h3>
+                <p class="text-sm text-gray-500 mt-1 italic">需脫鞋進場的沉浸式藝術</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">16:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Shibuya Sky (夕陽場)</h3>
+                <p class="text-sm text-orange-500 mt-1 font-medium">✨ 最佳拍攝時段</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">18:30</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">澀谷 PARCO：極味屋</h3>
+                <p class="text-sm text-gray-500 mt-1">Kiwamiya 漢堡排，現場排隊名店</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 3 -->
+      <div id="content-day-3" class="day-content bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+        <div class="mb-12 border-b border-gray-50 pb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">富士山：銀白世界的震撼</h2>
+          <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/26 (Thu) <span class="text-blue-900 ml-2 font-bold">木曜日</span></p>
+        </div>
+        <div class="relative border-l-2 border-gray-100 ml-4 pl-10 space-y-12">
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">07:50</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">銀座出發：富士山一日遊</h3>
+                <p class="text-sm text-gray-500 mt-1">GinzaNovo 集合點</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">19:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">銀座：佐藤養助烏龍麵</h3>
+                <p class="text-sm text-gray-500 mt-1">秋田名物稻庭烏龍麵</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">20:30</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">銀座 Uniqlo 全球旗艦店</h3>
+                <p class="text-sm text-gray-500 mt-1 italic">大採買時間</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">22:30</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">銀座 Orions 蜂巢布丁</h3>
+                <p class="text-sm text-gray-500 mt-1">深夜療癒甜點</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 4 -->
+      <div id="content-day-4" class="day-content bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+        <div class="mb-12 border-b border-gray-50 pb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">潮流與魔藥：都會魅力</h2>
+          <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/27 (Fri) <span class="text-blue-900 ml-2 font-bold">金曜日</span></p>
+        </div>
+        <div class="relative border-l-2 border-gray-100 ml-4 pl-10 space-y-12">
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">10:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">明治神宮參拜</h3>
+                <p class="text-sm text-gray-500 mt-1">森林步道散策</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">13:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">原宿/新宿大採買</h3>
+                <p class="text-sm text-gray-500 mt-1 italic">服飾、藥妝、潮流小物</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">19:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">惠比壽花園廣場</h3>
+                <p class="text-sm text-gray-500 mt-1">38F 免費展望台觀看夜景</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">21:30</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Bar Centifolia</h3>
+                <p class="text-sm text-pink-600 mt-1 font-medium">🧪 魔藥學酒吧體驗</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 5 -->
+      <div id="content-day-5" class="day-content bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+        <div class="mb-12 border-b border-gray-50 pb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">最後巡禮：下町購物</h2>
+          <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/28 (Sat) <span class="text-blue-900 ml-2 font-bold">土曜日</span></p>
+        </div>
+        <div class="relative border-l-2 border-gray-100 ml-4 pl-10 space-y-12">
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">10:45</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">BUTTER 美瑛鬆餅 (東京站)</h3>
+                <p class="text-sm text-gray-500 mt-1">挑戰動手削超大塊奶油</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">14:00</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">上野 Yamashiroya 玩具店</h3>
+                <p class="text-sm text-gray-500 mt-1 italic">扭蛋、模型、各類周邊</p>
+              </div>
+            </div>
+          </div>
+          <div class="japanese-dot">
+            <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-6">
+              <span class="text-blue-500 font-bold text-sm md:w-16">16:40</span>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">上野站搭乘 Skyliner</h3>
+                <p class="text-sm text-gray-500 mt-1">前往成田機場預備登機</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reminders Section -->
+    <section class="max-w-4xl mx-auto px-4 mt-20">
+      <div class="flex items-center gap-3 mb-10 border-b border-blue-100 pb-4">
+        <i data-lucide="bell" class="text-blue-600 w-6 h-6"></i>
+        <h2 class="text-2xl font-bold text-gray-800">重要搶票提醒</h2>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Card 1 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-orange-200 transition-transform hover:scale-[1.02]">
+        <div class="bg-white p-6 rounded-2xl border border-orange-200 shadow-sm transition-transform hover:-translate-y-1">
           <div class="flex justify-between items-start mb-4">
-            <h3 class="text-lg font-bold text-gray-800">Shibuya Sky</h3>
-            <span class="flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-600 text-xs font-bold rounded uppercase">
-              <i data-lucide="alert-triangle" class="w-3 h-3"></i> Important
-            </span>
+            <h3 class="font-bold text-lg text-gray-800">Shibuya Sky (2/25)</h3>
+            <span class="px-2 py-1 bg-orange-50 text-orange-600 text-[10px] font-bold rounded uppercase tracking-tighter">Essential</span>
           </div>
-          <div class="space-y-3 text-sm text-gray-600">
-            <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>預約日: <span class="font-medium text-gray-800">2/25</span></div>
-            <div class="flex items-center gap-3"><i data-lucide="bell" class="w-4 h-4 text-pink-400"></i>搶票日: <span class="font-medium text-pink-600">1/27 22:55 (TW)</span></div>
-            <div class="flex items-start gap-3 mt-2 bg-gray-50 p-3 rounded-lg italic text-gray-500">
-              <i data-lucide="info" class="w-4 h-4 text-gray-400 mt-0.5"></i><p>目標場次 16:00-16:20 (夕陽場)</p>
-            </div>
-          </div>
+          <p class="text-sm text-gray-600 mb-2">搶票日期：<span class="text-pink-600 font-bold">1/27 22:55 (TW)</span></p>
+          <p class="text-xs text-gray-400 italic">目標 16:00 夕陽時段</p>
         </div>
-        <!-- Card 2 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 transition-transform hover:scale-[1.02]">
+        <div class="bg-white p-6 rounded-2xl border border-blue-200 shadow-sm transition-transform hover:-translate-y-1">
           <div class="flex justify-between items-start mb-4">
-            <h3 class="text-lg font-bold text-gray-800">Skyliner</h3>
+            <h3 class="font-bold text-lg text-gray-800">Bar Centifolia (2/27)</h3>
           </div>
-          <div class="space-y-3 text-sm text-gray-600">
-            <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>預約日: <span class="font-medium text-gray-800">2/24, 2/28</span></div>
-            <div class="flex items-center gap-3"><i data-lucide="bell" class="w-4 h-4 text-pink-400"></i>預購日: <span class="font-medium text-gray-800">1/24</span></div>
-            <div class="flex items-start gap-3 mt-2 bg-gray-50 p-3 rounded-lg italic text-gray-500">
-              <i data-lucide="info" class="w-4 h-4 text-gray-400 mt-0.5"></i><p>務必註冊人臉辨識功能</p>
-            </div>
-          </div>
+          <p class="text-sm text-gray-600 mb-2">搶票日期：<span class="text-pink-600 font-bold">2/10 23:00 (TW)</span></p>
+          <p class="text-xs text-gray-400 italic">魔藥學酒吧需預約</p>
         </div>
-        <!-- Card 3 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 transition-transform hover:scale-[1.02]">
-          <div class="flex justify-between items-start mb-4">
-            <h3 class="text-lg font-bold text-gray-800">teamLab Planets</h3>
-          </div>
-          <div class="space-y-3 text-sm text-gray-600">
-            <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>預約日: <span class="font-medium text-gray-800">2/25 12:30</span></div>
-            <div class="flex items-start gap-3 mt-2 bg-gray-50 p-3 rounded-lg italic text-gray-500">
-              <i data-lucide="info" class="w-4 h-4 text-gray-400 mt-0.5"></i><p>現已開放預約</p>
-            </div>
-          </div>
+      </div>
+    </section>
+
+    <!-- Foodie Checklist -->
+    <section class="max-w-4xl mx-auto px-4 mt-20">
+      <div class="flex items-center gap-3 mb-10 border-b border-orange-100 pb-4">
+        <i data-lucide="utensils" class="text-orange-500 w-6 h-6"></i>
+        <h2 class="text-2xl font-bold text-gray-800">美食必做清單</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm text-center border border-gray-50 transition-all hover:bg-orange-50/30">
+          <i data-lucide="chef-hat" class="mx-auto mb-3 text-orange-400 w-8 h-8"></i>
+          <h4 class="font-bold mb-2">美瑛鬆餅</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">挑戰動手削超厚大塊奶油，體驗極致乳香。</p>
         </div>
-        <!-- Card 4 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-orange-200 transition-transform hover:scale-[1.02]">
-          <div class="flex justify-between items-start mb-4">
-            <h3 class="text-lg font-bold text-gray-800">富士山一日遊</h3>
-            <span class="flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-600 text-xs font-bold rounded uppercase">
-              <i data-lucide="alert-triangle" class="w-3 h-3"></i> Important
-            </span>
-          </div>
-          <div class="space-y-3 text-sm text-gray-600">
-            <div class="flex items-center gap-3"><i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>行程日: <span class="font-medium text-gray-800">2/26</span></div>
-            <div class="flex items-start gap-3 mt-2 bg-gray-50 p-3 rounded-lg italic text-gray-500">
-              <i data-lucide="info" class="w-4 h-4 text-gray-400 mt-0.5"></i><p>預訂「銀座出發、含遊船方案」</p>
-            </div>
-          </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm text-center border border-gray-50 transition-all hover:bg-blue-50/30">
+          <i data-lucide="milk" class="mx-auto mb-3 text-blue-400 w-8 h-8"></i>
+          <h4 class="font-bold mb-2">「酪」牛奶</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">秋葉原站 6 號月台尋找瓶裝牛奶，一飲而盡。</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm text-center border border-gray-50 transition-all hover:bg-pink-50/30">
+          <i data-lucide="pie-chart" class="mx-auto mb-3 text-pink-400 w-8 h-8"></i>
+          <h4 class="font-bold mb-2">蜂巢布丁</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">銀座 Orions 必點，建議搭配無糖飲料平衡甜度。</p>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="mt-20 py-12 border-t border-gray-200 text-center bg-white">
-    <p class="text-gray-400 text-sm font-light tracking-widest">
-      &copy; 2026 Tokyo Winter Travel Itinerary. All Rights Reserved.
+  <footer class="mt-24 py-16 bg-white border-t border-gray-100 text-center">
+    <div class="flex justify-center gap-6 mb-8 text-gray-300">
+      <i data-lucide="plane"></i>
+      <i data-lucide="map-pin"></i>
+      <i data-lucide="camera"></i>
+    </div>
+    <p class="text-gray-400 text-sm font-light tracking-[0.2em] mb-2 uppercase">
+      &copy; 2026 Tokyo Winter Journey
     </p>
-    <p class="text-xs text-gray-300 mt-2 italic">Minimalist Design inspired by Japanese Aesthetics</p>
+    <p class="text-[10px] text-gray-300 italic tracking-wider">Minimalist Design inspired by Japanese Aesthetics</p>
   </footer>
 
   <script>
     // Initialize Lucide Icons
     lucide.createIcons();
 
-    // Day Switcher Logic
+    // Day Switching Logic
     function switchDay(day) {
-      // Buttons
-      document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+      // Manage buttons
+      document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
       document.getElementById('btn-day-' + day).classList.add('active');
 
-      // Content
-      document.querySelectorAll('.day-content').forEach(content => content.classList.remove('active'));
+      // Manage contents
+      document.querySelectorAll('.day-content').forEach(content => {
+        content.classList.remove('active');
+      });
       document.getElementById('content-day-' + day).classList.add('active');
       
-      // Re-trigger animations or just scroll up slightly if mobile
+      // Auto-scroll on mobile for better UX
       if (window.innerWidth < 768) {
-        window.scrollTo({ top: document.querySelector('main').offsetTop - 20, behavior: 'smooth' });
+        const headerOffset = 100;
+        const elementPosition = document.querySelector('.day-content.active').getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
       }
     }
   </script>

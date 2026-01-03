@@ -1,5 +1,5 @@
 {
-  "name": "Copy of Tokyo 2026 Winter Journey",
-  "description": "A minimalist Japanese-style travel itinerary for a 5-day winter trip to Tokyo, featuring timelines, ticket reminders, and transport notes.",
+  "name": "Tokyo 2026 Winter Journey",
+  "description": "2026 東京冬日 5 天 4 夜旅行手冊。包含詳細行程、搶票提醒與美食清單。採用日系極簡風格，純 HTML/JS 實作。",
   "requestFramePermissions": []
 }
