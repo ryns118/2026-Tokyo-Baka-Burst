@@ -124,7 +124,7 @@
             <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:30</div><div><h4 class="font-bold">淺草寺夜晚散策<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">雷門拍照，欣賞夜晚寺廟點燈。</p></div></div>
           </div>
         </div>
-        <!-- Day 2-5 Content (Omitted for brevity in this display, but fully included in XML) -->
+        <!-- Day 2 -->
         <div id="content-day-2" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
             <h2 class="text-2xl font-bold text-gray-800">和服體驗與澀谷之巔</h2>
@@ -137,6 +137,7 @@
             <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:30</div><div><h4 class="font-bold">澀谷餐廳晚餐<span class="cat-badge cat-restaurant">餐廳</span></h4><p class="text-xs text-gray-500">推薦燒肉或潮流居酒屋。</p></div></div>
           </div>
         </div>
+        <!-- Day 3 -->
         <div id="content-day-3" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
             <h2 class="text-2xl font-bold text-gray-800">時尚沙龍與潮流購物</h2>
@@ -148,6 +149,7 @@
             <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:00</div><div><h4 class="font-bold">惠比壽花園廣場<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">浪漫夜景點與耶誕燈飾。 </p></div></div>
           </div>
         </div>
+        <!-- Day 4 -->
         <div id="content-day-4" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
             <h2 class="text-2xl font-bold text-gray-800">富士山：河口湖絕景</h2>
@@ -159,6 +161,7 @@
             <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:00</div><div><h4 class="font-bold">返回銀座晚餐<span class="cat-badge cat-restaurant">餐廳</span></h4><p class="text-xs text-gray-500">享受精緻和食晚餐。</p></div></div>
           </div>
         </div>
+        <!-- Day 5 -->
         <div id="content-day-5" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
             <h2 class="text-2xl font-bold text-gray-800">最後巡禮與回程</h2>
@@ -242,7 +245,6 @@
   <script>
     lucide.createIcons();
     
-    // 初始資料定義 (僅作為 fallback)
     const DEFAULT_TICKETS = [
       { id: 't1', type: '交通', name: 'Skyliner 去程 (NRT → 市區)', location: 'Klook', status: '待準備' },
       { id: 't7', type: '交通', name: 'Skyliner 回程 (市區 → NRT)', location: 'Klook', status: '待準備' },
@@ -256,7 +258,6 @@
     const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwj98SSWaJsumdB2C0cTuOt0bgQM1j1t8pOUEbOJYGyTwFYqV6koO7PrYIJEZQSeQ3CCQ/exec';
     let GAS_URL = localStorage.getItem('gas_url') || DEFAULT_GAS_URL;
 
-    // 從本地快取初始化狀態
     let tickets = JSON.parse(localStorage.getItem('tickets_data')) || [...DEFAULT_TICKETS];
     let shopItems = JSON.parse(localStorage.getItem('shop_items')) || [
       { id: 's1', name: 'ADDICTION 腮紅', status: '未購買' },
@@ -280,7 +281,7 @@
         });
         setTimeout(() => {
           updateSyncStatus('online');
-          showToast('已發送至雲端', 'success');
+          showToast(item.status === 'DELETED' ? '項目已從雲端移除' : '已發送至雲端', 'success');
         }, 500);
       } catch (err) {
         updateSyncStatus('online');
@@ -297,19 +298,23 @@
         
         if (Array.isArray(cloudData)) {
           cloudData.forEach(cloudItem => {
-            // 由於 GAS 回傳的 JSON 欄位可能因為原始試算表表頭不正確而偏移
-            // 這裡採用「強健比對」：優先找 id，若無則檢查物件中第一個值是否為我們已知的 ID
             const cloudId = cloudItem.id || cloudItem.ID || cloudItem.itemId || (typeof cloudItem === 'object' ? Object.values(cloudItem)[0] : null);
             if (!cloudId) return;
 
             const cloudStatus = cloudItem.status || cloudItem.Status || cloudItem['已購買'] || (Object.values(cloudItem).includes('已購買') ? '已購買' : '待準備');
 
-            // 更新票券
+            // 如果雲端標記為已刪除，則從本地移除該購物項目
+            if (cloudStatus === 'DELETED') {
+              if (cloudId.toString().startsWith('s')) {
+                shopItems = shopItems.filter(s => s.id != cloudId);
+              }
+              return;
+            }
+
             const tIdx = tickets.findIndex(t => t.id == cloudId);
             if (tIdx !== -1) {
               tickets[tIdx].status = cloudStatus;
             } else if (cloudId.toString().startsWith('s')) {
-              // 更新或新增購物清單
               const sIdx = shopItems.findIndex(s => s.id == cloudId);
               if (sIdx !== -1) {
                 shopItems[sIdx].status = (cloudStatus === '已購買' ? '已購買' : '未購買');
@@ -333,7 +338,6 @@
       }
     }
 
-    // 地圖與行程節點
     const mapNodes = {
       NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
       MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", time: "18:30" },
@@ -462,9 +466,15 @@
     }
 
     function removeShop(id) {
-      shopItems = shopItems.filter(x => x.id !== id);
-      saveToLocal();
-      renderShop();
+      const itemToDelete = shopItems.find(x => x.id === id);
+      if (itemToDelete) {
+        // 發送刪除信號給雲端
+        syncToCloud({ ...itemToDelete, status: 'DELETED' });
+        // 從本地移除
+        shopItems = shopItems.filter(x => x.id !== id);
+        saveToLocal();
+        renderShop();
+      }
     }
 
     function switchView(view) {
