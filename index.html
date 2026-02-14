@@ -4,907 +4,544 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>東京 Duo BAKA</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='white'/><rect x='0' y='0' width='32' height='4' fill='%23FF6B6B'/><rect x='0' y='4' width='32' height='4' fill='%23FFD93D'/><rect x='0' y='8' width='32' height='4' fill='%236BCB77'/><rect x='0' y='12' width='32' height='4' fill='%234D96FF'/><path d='M4 28 L16 12 L28 28 Z' fill='%231e3a8a'/><path d='M13 16 L16 12 L19 16 L17 15 L16 16 L15 15 Z' fill='white'/><text x='16' y='27' font-family='sans-serif' font-size='8' font-weight='900' fill='white' text-anchor='middle'>東京</text></svg>">
+  <title>東京 Duo BAKA | 2026 Winter</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='white'/><rect x='0' y='0' width='32' height='4' fill='%23FF6B6B'/><rect x='0' y='4' width='32' height='4' fill='%23FFD93D'/><rect x='0' y='8' width='32' height='4' fill='%236BCB77'/><rect x='0' y='12' width='32' height='4' fill='%234D96FF'/><path d='M4 28 L16 12 L28 28 Z' fill='%231e3a8a'/><text x='16' y='27' font-family='sans-serif' font-size='8' font-weight='900' fill='white' text-anchor='middle'>東京</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Leaflet Map Library -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    body {
-      font-family: 'Noto Sans JP', sans-serif;
-      background-color: #F9F7F2;
-      color: #333333;
-    }
+    body { font-family: 'Noto Sans JP', sans-serif; background-color: #F9F7F2; color: #333333; }
     .view-content { display: none; }
     .view-content.active { display: block; animation: fadeIn 0.4s ease-out; }
-    
     .day-content { display: none; }
     .day-content.active { display: block; animation: fadeIn 0.4s ease-out; }
-    
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .nav-btn.active {
-      border-bottom: 3px solid #1e3a8a;
-      color: #1e3a8a;
-      font-weight: 700;
-    }
-    
-    .day-btn.active {
-      background-color: #1e3a8a; 
-      color: white;
-      border-color: #1e3a8a;
-      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
-    }
-    
+    .nav-btn.active { border-bottom: 3px solid #1e3a8a; color: #1e3a8a; font-weight: 700; }
+    .day-btn.active { background-color: #1e3a8a; color: white; border-color: #1e3a8a; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2); }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .hero-gradient {
-      background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
-    }
-
-    /* Schedule Table Styles */
-    .schedule-row {
-      display: grid;
-      grid-template-columns: 70px 1fr;
-      gap: 1.5rem;
-      padding: 1.25rem 0;
-      border-bottom: 1px solid #f3f4f6;
-      transition: background-color 0.2s;
-    }
+    .hero-gradient { background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%); }
+    .schedule-row { display: grid; grid-template-columns: 70px 1fr; gap: 1.5rem; padding: 1.25rem 0; border-bottom: 1px solid #f3f4f6; }
     .schedule-row:last-child { border-bottom: none; }
-    
-    .cat-badge {
-      font-size: 10px;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+    .cat-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 4px; }
     .cat-transport { background: #eff6ff; color: #1e40af; }
     .cat-restaurant { background: #fff7ed; color: #9a3412; }
     .cat-activity { background: #f0fdf4; color: #166534; }
     .cat-shopping { background: #fdf2f8; color: #9d174d; }
-
-    /* Segmented Control Styles */
-    .segmented-control {
-      display: flex;
-      background: #f1f5f9;
-      padding: 4px;
-      border-radius: 12px;
-      width: fit-content;
-    }
-    .segmented-btn {
-      padding: 6px 16px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      transition: all 0.2s;
-      color: #64748b;
-    }
-    .segmented-btn.active {
-      background: white;
-      color: #1e3a8a;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    /* Map UI */
-    .map-container {
-      border: 1px solid #eee;
-      position: relative;
-      overflow: hidden;
-      z-index: 10;
-    }
-    #travel-leaflet-map {
-      width: 100%;
-      height: 100%;
-    }
-    .custom-div-icon {
-      background: none;
-      border: none;
-    }
-    .marker-pin {
-      width: 30px;
-      height: 30px;
-      border-radius: 50% 50% 50% 0;
-      background: #1e3a8a;
-      position: absolute;
-      transform: rotate(-45deg);
-      left: 50%;
-      top: 50%;
-      margin: -15px 0 0 -15px;
-      border: 2px solid white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .marker-pin::after {
-      content: attr(data-index);
-      transform: rotate(45deg);
-      color: white;
-      font-weight: 700;
-      font-size: 12px;
-    }
-    .marker-label {
-      background: white;
-      padding: 2px 8px;
-      border-radius: 4px;
-      border: 1px solid #1e3a8a;
-      color: #1e3a8a;
-      font-weight: 700;
-      font-size: 11px;
-      white-space: nowrap;
-      position: absolute;
-      bottom: -22px;
-      left: 50%;
-      transform: translateX(-50%);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .tip-card {
-      border-left: 4px solid #f59e0b;
-      background: #fffbeb;
-    }
-    
-    #edit-modal { display: none; background: rgba(0,0,0,0.5); }
-    #edit-modal.active { display: flex; }
-    .ticket-stub { border-right: 2px dashed #e5e7eb; }
+    .cat-beauty { background: #f5f3ff; color: #5b21b6; }
+    .map-container { border: 1px solid #eee; position: relative; overflow: hidden; z-index: 10; }
+    #travel-leaflet-map { width: 100%; height: 100%; }
+    .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #1e3a8a; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+    .marker-pin::after { content: attr(data-index); transform: rotate(45deg); color: white; font-weight: 700; font-size: 12px; }
+    .marker-label { background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #1e3a8a; color: #1e3a8a; font-weight: 700; font-size: 11px; white-space: nowrap; position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .sync-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-online { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+    .status-offline { background-color: #94a3b8; }
+    .status-syncing { background-color: #3b82f6; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    #settings-modal { display: none; background: rgba(0,0,0,0.5); z-index: 100; }
+    #settings-modal.active { display: flex; }
+    #toast-container { pointer-events: none; z-index: 1000; }
+    .toast { animation: toastIn 0.3s ease-out forwards; pointer-events: auto; }
+    @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body class="min-h-screen pb-20">
 
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"></div>
+
+  <!-- Settings Trigger -->
+  <button onclick="toggleSettings()" class="fixed top-4 right-4 z-[60] w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/30 shadow-lg">
+    <i data-lucide="settings" class="w-5 h-5"></i>
+  </button>
+
   <!-- Hero Header -->
   <header class="relative h-[45vh] w-full overflow-hidden flex items-center justify-center">
-    <img 
-      src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" 
-      alt="Mount Fuji Winter View" 
-      class="absolute inset-0 w-full h-full object-cover filter brightness-[0.8]"
-    />
+    <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=2070&auto=format&fit=crop" alt="Tokyo Winter" class="absolute inset-0 w-full h-full object-cover filter brightness-[0.8]" />
     <div class="absolute inset-0 hero-gradient"></div>
     <div class="relative z-10 text-center text-white px-4">
-      <div class="mb-4 inline-block px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold tracking-widest uppercase">
-        2026 Winter Journey
+      <div class="mb-2 inline-block px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold tracking-widest uppercase">Tokyo 2026 Winter Journey</div>
+      <div class="flex items-center justify-center gap-2 mb-4 text-[10px] font-bold opacity-80">
+        <span id="sync-dot" class="sync-indicator status-offline"></span>
+        <span id="sync-text">OFFLINE</span>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold mb-4 drop-shadow-2xl tracking-tight">
-        東京 Duo BAKA
-      </h1>
-      <div class="flex justify-center gap-4 text-sm font-medium tracking-wide">
-        <span class="flex items-center gap-2 bg-black/30 px-5 py-2 rounded-full backdrop-blur-sm">
-          <i data-lucide="calendar" class="w-4 h-4"></i> FEB 24 - FEB 28
-        </span>
-      </div>
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 drop-shadow-2xl tracking-tight">東京 Duo BAKA</h1>
+      <p class="text-sm font-medium tracking-wide bg-black/30 px-5 py-2 rounded-full backdrop-blur-sm inline-flex items-center gap-2">
+        <i data-lucide="calendar" class="w-4 h-4"></i> FEB 24 - FEB 28
+      </p>
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
+  <!-- Navigation -->
   <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
     <div class="max-w-5xl mx-auto flex">
-      <button onclick="switchView('itinerary')" id="nav-itinerary" class="nav-btn active flex-1 py-4 text-center text-xs md:text-sm tracking-widest font-medium transition-all">行程地圖</button>
-      <button onclick="switchView('wallet')" id="nav-wallet" class="nav-btn flex-1 py-4 text-center text-xs md:text-sm tracking-widest font-medium transition-all">票券管理</button>
-      <button onclick="switchView('shopping')" id="nav-shopping" class="nav-btn flex-1 py-4 text-center text-xs md:text-sm tracking-widest font-medium transition-all">購物清單</button>
+      <button onclick="switchView('itinerary')" id="nav-itinerary" class="nav-btn active flex-1 py-4 text-center text-xs md:text-sm tracking-widest font-medium transition-all uppercase">行程</button>
+      <button onclick="switchView('wallet')" id="nav-wallet" class="nav-btn flex-1 py-4 text-center text-xs md:text-sm tracking-widest font-medium transition-all uppercase">票券</button>
+      <button onclick="switchView('shopping')" id="nav-shopping" class="nav-btn flex-1 py-4 text-center text-xs md:text-sm tracking-widest font-medium transition-all uppercase">購物</button>
     </div>
   </nav>
 
   <!-- View 1: Itinerary -->
   <div id="view-itinerary" class="view-content active">
-    <!-- Quick Info -->
     <div class="max-w-4xl mx-auto px-4 mt-8">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center gap-5 border border-gray-50">
-          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <i data-lucide="hotel" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Accommodation</p>
-            <h3 class="font-bold text-gray-800">東橫INN 東京三之輪站前</h3>
-            <p class="text-xs text-gray-500">地鐵日比谷線直達</p>
-          </div>
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="hotel" class="w-6 h-6"></i></div>
+          <div><p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Accommodation</p><h3 class="font-bold text-gray-800">東橫INN 東京三之輪站前</h3></div>
         </div>
         <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center gap-5 border border-gray-50">
-          <div class="w-12 h-12 bg-blue-900 text-white rounded-full flex items-center justify-center flex-shrink-0">
-            <i data-lucide="train" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Transport</p>
-            <h3 class="font-bold text-gray-800">Subway 72H + Skyliner</h3>
-            <p class="text-xs text-gray-500">2/25 10:00 啟用</p>
-          </div>
+          <div class="w-12 h-12 bg-blue-900 text-white rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="train" class="w-6 h-6"></i></div>
+          <div><p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Flight Arrival</p><h3 class="font-bold text-gray-800">NRT 16:15 抵達</h3></div>
         </div>
       </div>
     </div>
 
-    <!-- Timeline Selector -->
+    <!-- Timeline Controls -->
     <section class="max-w-4xl mx-auto px-4 mt-12 mb-10">
       <div class="flex overflow-x-auto pb-4 scrollbar-hide space-x-2 justify-start md:justify-center">
-        <button onclick="switchDay(1)" id="btn-day-1" class="day-btn active flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 1</button>
-        <button onclick="switchDay(2)" id="btn-day-2" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 2</button>
-        <button onclick="switchDay(3)" id="btn-day-3" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 3</button>
-        <button onclick="switchDay(4)" id="btn-day-4" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 4</button>
-        <button onclick="switchDay(5)" id="btn-day-5" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white text-gray-500 border-gray-200 transition-all font-bold">Day 5</button>
+        <button onclick="switchDay(1)" id="btn-day-1" class="day-btn active flex-shrink-0 px-8 py-2.5 rounded-full border bg-white font-bold transition-all">Day 1</button>
+        <button onclick="switchDay(2)" id="btn-day-2" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white font-bold transition-all">Day 2</button>
+        <button onclick="switchDay(3)" id="btn-day-3" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white font-bold transition-all">Day 3</button>
+        <button onclick="switchDay(4)" id="btn-day-4" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white font-bold transition-all">Day 4</button>
+        <button onclick="switchDay(5)" id="btn-day-5" class="day-btn flex-shrink-0 px-8 py-2.5 rounded-full border bg-white font-bold transition-all">Day 5</button>
       </div>
 
-      <div id="itinerary-details" class="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
-        <!-- Day 1 Content -->
+      <div id="itinerary-details" class="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 min-h-[400px]">
+        <!-- Day 1 -->
         <div id="content-day-1" class="day-content active">
           <div class="mb-8 border-b border-gray-50 pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">抵達東京：古都巡禮</h2>
+            <h2 class="text-2xl font-bold text-gray-800">抵達東京：古都之夜</h2>
             <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/24 (Tue) <span class="text-blue-900 ml-2 font-bold">火曜日</span></p>
           </div>
           <div class="schedule-table">
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">16:15</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="plane" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">落地成田機場 (NRT)</h4>
-                    <span class="cat-badge cat-transport">交通</span>
-                </div>
-                <p class="text-xs text-gray-500">辦理入境與領票，兌換 Skyliner 及地鐵 72H 票券。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">18:45</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="hotel" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">三之輪飯店 Check-in</h4>
-                    <span class="cat-badge cat-transport">住宿</span>
-                </div>
-                <p class="text-xs text-gray-500">東橫INN 東京三之輪站前，安置行李。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">20:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="camera" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">淺草寺點燈</h4>
-                    <span class="cat-badge cat-activity">行程</span>
-                </div>
-                <p class="text-xs text-gray-500">欣賞夜晚的雷門與五重塔。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">21:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="shopping-bag" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">晴空塔 Solamachi</h4>
-                    <span class="cat-badge cat-shopping">購物</span>
-                </div>
-                <p class="text-xs text-gray-500">逛街採買伴手禮。</p>
-              </div>
-            </div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">16:15</div><div><h4 class="font-bold">成田機場 (NRT) 抵達<span class="cat-badge cat-transport">交通</span></h4><p class="text-xs text-gray-500">辦理入境，搭乘 Skyliner 前往三之輪。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">18:30</div><div><h4 class="font-bold">飯店 Check-in<span class="cat-badge cat-transport">住宿</span></h4><p class="text-xs text-gray-500">東橫INN 東京三之輪站前置放行李。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:30</div><div><h4 class="font-bold">淺草寺夜晚散策<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">雷門拍照，欣賞夜晚寺廟點燈。</p></div></div>
           </div>
         </div>
 
-        <!-- Day 2 Content -->
+        <!-- Day 2 -->
         <div id="content-day-2" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">藝術與夕陽：澀谷之巔</h2>
+            <h2 class="text-2xl font-bold text-gray-800">和服體驗與澀谷之巔</h2>
             <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/25 (Wed) <span class="text-blue-900 ml-2 font-bold">水曜日</span></p>
           </div>
           <div class="schedule-table">
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">12:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="palette" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">teamLab Planets</h4>
-                    <span class="cat-badge cat-activity">行程</span>
-                </div>
-                <p class="text-xs text-gray-500">豐洲沉浸式藝術體驗。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">16:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="sun" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">Shibuya Sky (夕陽場)</h4>
-                    <span class="cat-badge cat-activity">行程</span>
-                </div>
-                <p class="text-xs text-gray-500">澀谷新地標，飽覽東京全景。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">19:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="utensils" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">極味屋 (澀谷 PARCO)</h4>
-                    <span class="cat-badge cat-restaurant">餐廳</span>
-                </div>
-                <p class="text-xs text-gray-500">絕品石燒漢堡排。</p>
-              </div>
-            </div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">09:00</div><div><h4 class="font-bold">江戶和裝工房 (和服)<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">淺草和服換裝與專業髮型設計。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">12:30</div><div><h4 class="font-bold">teamLab Planets<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">豐洲沉浸式藝術展（需事先預約）。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">16:40</div><div><h4 class="font-bold">Shibuya Sky 夕陽<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">欣賞澀谷十字路口與東京展望夕陽。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:30</div><div><h4 class="font-bold">澀谷餐廳晚餐<span class="cat-badge cat-restaurant">餐廳</span></h4><p class="text-xs text-gray-500">推薦燒肉或潮流居酒屋。</p></div></div>
           </div>
         </div>
 
-        <!-- Day 3 Content -->
+        <!-- Day 3 -->
         <div id="content-day-3" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">富士山：銀座出發一日遊</h2>
+            <h2 class="text-2xl font-bold text-gray-800">時尚沙龍與潮流購物</h2>
             <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/26 (Thu) <span class="text-blue-900 ml-2 font-bold">木曜日</span></p>
           </div>
           <div class="schedule-table">
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">07:50</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="mountain" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">富士山一日遊</h4>
-                    <span class="cat-badge cat-activity">行程</span>
-                </div>
-                <p class="text-xs text-gray-500">銀座出發，河口湖絕景。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">19:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="utensils" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">佐藤養助 銀座</h4>
-                    <span class="cat-badge cat-restaurant">餐廳</span>
-                </div>
-                <p class="text-xs text-gray-500">絲滑口感的絕品烏龍麵。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">20:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="shopping-bag" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">銀座 Uniqlo 採買</h4>
-                    <span class="cat-badge cat-shopping">購物</span>
-                </div>
-                <p class="text-xs text-gray-500">全球旗艦店逛街。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">21:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="cake" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">銀座オリオンズ</h4>
-                    <span class="cat-badge cat-restaurant">餐廳</span>
-                </div>
-                <p class="text-xs text-gray-500">深夜甜點：蜂巢布丁。</p>
-              </div>
-            </div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">10:00</div><div><h4 class="font-bold">表參道 MAGNOLiA 沙龍<span class="cat-badge cat-beauty">美髮</span></h4><p class="text-xs text-gray-500">預約高級美髮沙龍體驗。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">14:00</div><div><h4 class="font-bold">新宿/原宿購物<span class="cat-badge cat-shopping">購物</span></h4><p class="text-xs text-gray-500">潮流品牌、藥妝補貨與竹下通散策。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:00</div><div><h4 class="font-bold">惠比壽花園廣場<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">浪漫夜景點與耶誕燈飾。 </p></div></div>
           </div>
         </div>
 
-        <!-- Day 4 Content -->
+        <!-- Day 4 -->
         <div id="content-day-4" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">潮流大採買：惠比壽燒肉</h2>
+            <h2 class="text-2xl font-bold text-gray-800">富士山：河口湖絕景</h2>
             <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/27 (Fri) <span class="text-blue-900 ml-2 font-bold">金曜日</span></p>
           </div>
           <div class="schedule-table">
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">10:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">明治神宮參拜</h4>
-                    <span class="cat-badge cat-activity">行程</span>
-                </div>
-                <p class="text-xs text-gray-500">都會森林中的靜謐時光。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">14:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="shopping-cart" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">原宿/新宿大採買</h4>
-                    <span class="cat-badge cat-shopping">購物</span>
-                </div>
-                <p class="text-xs text-gray-500">逛街聖地巡禮。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">18:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="flame" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">燒肉うしみつ (惠比壽)</h4>
-                    <span class="cat-badge cat-restaurant">餐廳</span>
-                </div>
-                <p class="text-xs text-gray-500">惠比壽本店，高級燒肉體驗。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">21:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="glass-water" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">Bar Centifolia</h4>
-                    <span class="cat-badge cat-restaurant">餐廳</span>
-                </div>
-                <p class="text-xs text-gray-500">魔藥學主題酒吧。</p>
-              </div>
-            </div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">07:50</div><div><h4 class="font-bold">銀座集合出發<span class="cat-badge cat-transport">交通</span></h4><p class="text-xs text-gray-500">參加富士山一日遊巴士團。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">10:30</div><div><h4 class="font-bold">河口湖周邊景點<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">新倉山淺間公園、大石公園拍照。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">19:00</div><div><h4 class="font-bold">返回銀座晚餐<span class="cat-badge cat-restaurant">餐廳</span></h4><p class="text-xs text-gray-500">享受精緻和食晚餐。</p></div></div>
           </div>
         </div>
 
-        <!-- Day 5 Content -->
+        <!-- Day 5 -->
         <div id="content-day-5" class="day-content">
           <div class="mb-8 border-b border-gray-50 pb-4">
-            <h2 class="text-2xl font-bold text-gray-800">最後巡禮：上野玩具城</h2>
+            <h2 class="text-2xl font-bold text-gray-800">最後巡禮與回程</h2>
             <p class="text-gray-400 font-light tracking-[0.2em] uppercase text-sm">2/28 (Sat) <span class="text-blue-900 ml-2 font-bold">土曜日</span></p>
           </div>
           <div class="schedule-table">
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">10:45</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="utensils" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">BUTTER 美瑛鬆餅</h4>
-                    <span class="cat-badge cat-restaurant">餐廳</span>
-                </div>
-                <p class="text-xs text-gray-500">東京車站，需排隊削奶油。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">12:30</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="landmark" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">皇居二重橋</h4>
-                    <span class="cat-badge cat-activity">行程</span>
-                </div>
-                <p class="text-xs text-gray-500">歷史古蹟散策。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">14:00</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="ghost" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">上野 Yamashiroya</h4>
-                    <span class="cat-badge cat-shopping">購物</span>
-                </div>
-                <p class="text-xs text-gray-500">6 層樓玩具店，及阿美橫丁最後採買。</p>
-              </div>
-            </div>
-            <div class="schedule-row">
-              <div class="text-sm font-bold text-blue-900 mt-1">16:40</div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <i data-lucide="train" class="w-4 h-4 text-blue-500"></i>
-                    <h4 class="font-bold text-gray-800">Skyliner 回機場</h4>
-                    <span class="cat-badge cat-transport">交通</span>
-                </div>
-                <p class="text-xs text-gray-500">由上野站出發，預計 19:00 成田起飛。</p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Travel Tip Section -->
-          <div class="mt-10 p-5 tip-card rounded-2xl flex items-start gap-4 shadow-sm">
-            <div class="bg-amber-500 text-white p-2 rounded-lg">
-                <i data-lucide="lightbulb" class="w-5 h-5"></i>
-            </div>
-            <div>
-                <h4 class="font-bold text-amber-900 text-sm mb-1">小提醒：秋葉原限定</h4>
-                <p class="text-xs text-amber-800 leading-relaxed">
-                    在秋葉原站轉車時，別忘了去 <strong>6 號月台</strong> 找尋 <strong>「酪 (RAKU)」</strong> 牛奶販賣部，品嚐道地的日本鮮乳！
-                </p>
-            </div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">10:30</div><div><h4 class="font-bold">東京車站 (美瑛鬆餅)<span class="cat-badge cat-restaurant">餐廳</span></h4><p class="text-xs text-gray-500">BUTTER 美瑛鬆餅早餐巡禮。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">12:30</div><div><h4 class="font-bold">皇居二重橋<span class="cat-badge cat-activity">行程</span></h4><p class="text-xs text-gray-500">散步參觀日本天皇居所周邊。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">14:00</div><div><h4 class="font-bold">上野玩具大衝刺<span class="cat-badge cat-shopping">購物</span></h4><p class="text-xs text-gray-500">Yamashiroya 6層樓玩具伴手禮。</p></div></div>
+            <div class="schedule-row"><div class="text-sm font-bold text-blue-900 mt-1">16:20</div><div><h4 class="font-bold">上野搭乘 Skyliner<span class="cat-badge cat-transport">交通</span></h4><p class="text-xs text-gray-500">前往成田機場 (19:55 起飛)。</p></div></div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Map Section -->
-    <section class="max-w-4xl mx-auto px-4 mt-16 mb-20">
+    <section class="max-w-4xl mx-auto px-4 mb-20">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <i data-lucide="map" class="text-blue-900 w-5 h-5"></i>
-          實境路線地圖
-        </h3>
-        <button onclick="resetMapView()" class="bg-white/90 backdrop-blur shadow-md px-3 py-1.5 rounded-xl border border-gray-100 text-blue-900 hover:bg-blue-50 transition-all flex items-center gap-2 text-xs font-bold">
-          <i data-lucide="maximize" class="w-3.5 h-3.5"></i> 回到預設大小
-        </button>
+        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2"><i data-lucide="map" class="text-blue-900 w-5 h-5"></i> 實境路線地圖</h3>
+        <button onclick="resetMapView()" class="text-xs font-bold text-blue-900 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">重置視野</button>
       </div>
-      <div class="map-container w-full h-[450px] md:h-[550px] bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden relative">
-        <div id="travel-leaflet-map"></div>
-      </div>
+      <div class="map-container w-full h-[450px] bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden"><div id="travel-leaflet-map"></div></div>
     </section>
   </div>
 
-  <!-- View 2: Ticket Wallet -->
+  <!-- View 2: Wallet -->
   <div id="view-wallet" class="view-content max-w-4xl mx-auto px-4 mt-8">
     <div class="mb-10 text-center">
       <i data-lucide="wallet" class="mx-auto text-blue-900 mb-4 w-8 h-8 opacity-80"></i>
       <h2 class="text-3xl font-bold text-gray-800">票券錢包</h2>
-      <p class="text-sm text-gray-400 mt-2">點擊完成後會移往已購買區</p>
+      <p class="text-sm text-gray-400 mt-2">點擊完成標記，與 Google 試算表即時同步</p>
     </div>
-
     <div class="mb-12">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span class="w-2 h-6 bg-pink-500 rounded-full"></span> 待準備項目
-        </h3>
-        <div class="segmented-control" id="filter-pending">
-          <button onclick="setTicketFilter('pending', '全部')" class="segmented-btn active" data-filter="全部">全部</button>
-          <button onclick="setTicketFilter('pending', '交通')" class="segmented-btn" data-filter="交通">交通</button>
-          <button onclick="setTicketFilter('pending', '票券')" class="segmented-btn" data-filter="票券">票券</button>
-        </div>
-      </div>
+      <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-6"><span class="w-2 h-6 bg-pink-500 rounded-full"></span> 待準備項目</h3>
       <div id="wallet-pending" class="space-y-4"></div>
     </div>
-
     <div class="mb-12">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span class="w-2 h-6 bg-green-500 rounded-full"></span> 已購買票券
-        </h3>
-        <div class="segmented-control" id="filter-purchased">
-          <button onclick="setTicketFilter('purchased', '全部')" class="segmented-btn active" data-filter="全部">全部</button>
-          <button onclick="setTicketFilter('purchased', '交通')" class="segmented-btn" data-filter="交通">交通</button>
-          <button onclick="setTicketFilter('purchased', '票券')" class="segmented-btn" data-filter="票券">票券</button>
-        </div>
-      </div>
+      <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-6"><span class="w-2 h-6 bg-green-500 rounded-full"></span> 已購買項目</h3>
       <div id="wallet-purchased" class="space-y-4"></div>
-    </div>
-
-    <div class="mb-12 border-t border-gray-100 pt-10">
-      <div class="flex items-center justify-between mb-6 opacity-50">
-        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span class="w-2 h-6 bg-gray-400 rounded-full"></span> 已刪除票券
-        </h3>
-      </div>
-      <div id="wallet-deleted" class="space-y-4 opacity-50"></div>
     </div>
   </div>
 
-  <!-- View 3: Shopping List -->
+  <!-- View 3: Shopping -->
   <div id="view-shopping" class="view-content max-w-4xl mx-auto px-4 mt-8">
     <div class="mb-10 text-center">
       <i data-lucide="shopping-bag" class="mx-auto text-blue-900 mb-4 w-8 h-8 opacity-80"></i>
       <h2 class="text-3xl font-bold text-gray-800">購物清單</h2>
-      <p class="text-sm text-gray-400 mt-2">東京必買好物，點擊項目標記已購買</p>
     </div>
-
-    <div class="flex justify-center mb-8">
-      <div class="segmented-control" id="filter-shopping">
-        <button onclick="setShoppingFilter('美妝')" class="segmented-btn active" data-filter="美妝">美妝</button>
-        <button onclick="setShoppingFilter('服飾')" class="segmented-btn" data-filter="服飾">服飾</button>
-        <button onclick="setShoppingFilter('動漫')" class="segmented-btn" data-filter="動漫">動漫</button>
-        <button onclick="setShoppingFilter('其他')" class="segmented-btn" data-filter="其他">其他</button>
+    <div class="max-w-md mx-auto mb-8 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+      <div class="flex gap-2">
+        <input type="text" id="shop-input" placeholder="想要買什麼..." class="flex-1 bg-gray-50 border-none rounded-xl px-4 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+        <button onclick="addShopItem()" class="bg-blue-900 text-white px-4 py-2 rounded-xl font-bold text-sm">新增</button>
       </div>
     </div>
+    <div id="shopping-list-container" class="space-y-3"></div>
+  </div>
 
-    <div id="shopping-list-container" class="space-y-4 min-h-[300px]"></div>
-
-    <div class="mt-12 bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-      <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <i data-lucide="plus-circle" class="w-5 h-5 text-blue-900"></i> 新增必買好物
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <input type="text" id="shop-input-name" class="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm" placeholder="商品名稱...">
-        <input type="text" id="shop-input-location" class="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm" placeholder="購買地點 (Loft, 藥妝店...)">
-        <input type="text" id="shop-input-remark" class="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm" placeholder="備註 (規格、數量...)">
-      </div>
-      <div class="flex justify-between items-center">
-        <div class="flex gap-2">
-            <span class="text-xs text-gray-400 font-bold uppercase tracking-widest self-center">類別:</span>
-            <select id="shop-input-category" class="bg-gray-50 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-600 focus:outline-none">
-                <option value="美妝">美妝</option>
-                <option value="服飾">服飾</option>
-                <option value="動漫">動漫</option>
-                <option value="其他">其他</option>
-            </select>
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 items-center justify-center p-6">
+    <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
+      <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800"><i data-lucide="database" class="w-5 h-5 text-blue-900"></i> 後端連線診斷</h3>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">Google Apps Script URL</label>
+          <input type="text" id="gas-url-input" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-900 outline-none" placeholder="https://script.google.com/macros/s/.../exec">
+          <p id="url-warning" class="hidden text-[10px] text-red-500 font-bold mt-2 leading-relaxed">⚠️ 偵測到編輯網址！請確保貼上的是「部署」後產生的「網頁應用程式網址」而非編輯器網址。</p>
         </div>
-        <button onclick="addShoppingItem()" class="bg-blue-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-800 shadow-md transition-all">
-          新增到清單
-        </button>
+
+        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+          <h4 class="text-xs font-bold text-blue-900 mb-2 uppercase flex items-center gap-2"><i data-lucide="check-circle" class="w-3 h-3"></i> 驗證連線步驟</h4>
+          <ol class="text-[11px] text-blue-700 space-y-2 leading-relaxed list-decimal ml-4">
+            <li>確認 GAS 權限設為「所有人 (Anyone)」。</li>
+            <li>確認網址結尾是 <strong>/exec</strong>。</li>
+            <li>點擊下方「在新視窗驗證」，若能看到 JSON 資料即代表權限正確。</li>
+          </ol>
+          <button onclick="verifyUrlManually()" class="mt-4 w-full py-2 bg-blue-900/10 text-blue-900 rounded-lg text-xs font-bold border border-blue-900/20 hover:bg-blue-900/20">在新視窗驗證 URL</button>
+        </div>
+
+        <div class="flex gap-3">
+           <button onclick="loadFromCloud()" class="flex-1 py-3 text-sm font-bold bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> 重新測試</button>
+           <button onclick="saveSettings()" class="flex-1 py-3 text-sm font-bold bg-blue-900 text-white rounded-xl shadow-lg shadow-blue-900/20">儲存</button>
+        </div>
+        
+        <button onclick="toggleSettings()" class="w-full py-2 text-xs font-bold text-gray-400">關閉視窗</button>
       </div>
     </div>
   </div>
 
-  <!-- Edit Name Modal -->
-  <div id="edit-modal" class="fixed inset-0 z-[100] items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-      <h3 class="text-xl font-bold text-gray-800 mb-6">編輯票券名稱</h3>
-      <input type="text" id="edit-input" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 mb-6" placeholder="輸入新名稱...">
-      <div class="flex gap-3">
-        <button onclick="closeEditModal()" class="flex-1 py-3 text-gray-500 font-bold border border-gray-100 rounded-xl hover:bg-gray-50">取消</button>
-        <button onclick="saveEdit()" class="flex-1 py-3 bg-blue-900 text-white font-bold rounded-xl hover:bg-blue-800 shadow-md">儲存修改</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Scripts -->
   <script>
     lucide.createIcons();
-
-    const initialTickets = [
-      { id: 1, type: '交通', name: 'Skyliner 往返券', location: 'Klook / Skyliner App', purchased: false, deleted: false, link: 'https://www.klook.com' },
-      { id: 2, type: '票券', name: 'teamLab Planets (2/25)', location: '官網信件', purchased: false, deleted: false, link: '#' },
-      { id: 3, type: '交通', name: 'Tokyo Subway Ticket 72H', location: 'QR Code / 官方 App', purchased: false, deleted: false, link: '#' },
-      { id: 4, type: '交通', name: '富士山一日遊憑證', location: '電子憑證', purchased: false, deleted: false, link: '#' },
-      { id: 5, type: '票券', name: 'Shibuya Sky (2/25 夕陽場)', location: '官網門票', purchased: false, deleted: false, link: 'https://www.shibuya-scramble-square.com/sky/ticket/' },
-      { id: 6, type: '票券', name: 'Bar Centifolia (2/27 21:30)', location: 'TableCheck', purchased: false, deleted: false, link: 'https://www.tablecheck.com/' }
-    ];
-
-    const initialShopping = [
-      { id: 1, category: '美妝', name: 'Cezanne 打亮粉', location: '藥妝店', remark: '色號 01', purchased: false },
-      { id: 2, category: '美妝', name: '&be 遮瑕膏', location: 'Loft', remark: '買 2 個', purchased: false },
-      { id: 3, category: '服飾', name: 'Uniqlo 羽絨衣', location: '澀谷旗艦店', remark: '台灣沒有的顏色', purchased: false },
-      { id: 4, category: '動漫', name: '吉伊卡哇玩偶', location: 'Yamashiroya', remark: '送給妹妹的', purchased: false },
-      { id: 5, category: '其他', name: 'New York Perfect Cheese', location: '東京站', remark: '排隊名店', purchased: false }
-    ];
-
-    let tickets = JSON.parse(localStorage.getItem('tokyo_2026_tickets')) || initialTickets;
-    let shoppingItems = JSON.parse(localStorage.getItem('tokyo_2026_shopping')) || initialShopping;
     
-    let filters = { pending: '全部', purchased: '全部', shopping: '美妝' };
-    let activeDay = 1;
-    let map = null;
-    let markersLayer = null;
-    let routesLayer = null;
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwj98SSWaJsumdB2C0cTuOt0bgQM1j1t8pOUEbOJYGyTwFYqV6koO7PrYIJEZQSeQ3CCQ/exec';
+    let GAS_URL = localStorage.getItem('gas_url') || DEFAULT_GAS_URL;
+
+    let tickets = [
+      { id: 't1', type: '交通', name: 'Skyliner 去程 (NRT → 市區)', location: 'Klook', status: '待準備' },
+      { id: 't7', type: '交通', name: 'Skyliner 回程 (市區 → NRT)', location: 'Klook', status: '待準備' },
+      { id: 't2', type: '票券', name: 'teamLab Planets (2/25)', location: '官網預約', status: '待準備', link: 'https://teamlabplanets.dmm.com/zh_tw/mytickets/0c81f69903f1050aa7' },
+      { id: 't3', type: '票券', name: 'Shibuya Sky (2/25)', location: '官網預約', status: '待準備' },
+      { id: 't4', type: '美髮', name: 'MAGNOLiA 沙龍預約', location: 'Hot Pepper Beauty', status: '待準備' },
+      { id: 't5', type: '行程', name: '富士山一日遊憑證', location: 'KKday/Klook', status: '待準備' },
+      { id: 't6', type: '體驗', name: '江戶和裝工房和服', location: '官網預約', status: '待準備' }
+    ];
+    let shopItems = JSON.parse(localStorage.getItem('shop_items')) || [
+      { id: 's1', name: 'ADDICTION 腮紅', status: '未購買' },
+      { id: 's2', name: 'Uniqlo C 系列外套', status: '未購買' }
+    ];
 
     const mapNodes = {
-      NRT: { lat: 35.776, lng: 140.318, name: "成田機場", img: "https://images.unsplash.com/photo-1542013936693-884638332954?q=80&w=320", icon: "plane", time: "16:15", ticketIds: [1] },
-      MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=320", icon: "hotel", time: "18:45", ticketIds: [] },
-      ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺", img: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=320", icon: "camera", time: "20:00", ticketIds: [3] },
-      SKYTREE: { lat: 35.710, lng: 139.810, name: "晴空塔 Solamachi", img: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?q=80&w=320", icon: "shopping-bag", time: "21:30", ticketIds: [] },
-      TOYOSU: { lat: 35.649, lng: 139.789, name: "teamLab Toyosu", img: "https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=320", icon: "palette", time: "12:30", ticketIds: [2] },
-      SHIBUYA: { lat: 35.658, lng: 139.702, name: "澀谷 Shibuya Sky", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=320", icon: "sun", time: "16:00", ticketIds: [5] },
-      KIWAMIYA: { lat: 35.662, lng: 139.698, name: "極味屋 (Shibuya Parco)", img: "https://images.unsplash.com/photo-1529692236671-f1f6e9460272?q=80&w=320", icon: "utensils", time: "19:00", ticketIds: [] },
-      GINZA: { lat: 35.671, lng: 139.765, name: "銀座 (佐藤養助)", img: "https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=320", icon: "utensils", time: "19:30", ticketIds: [] },
-      ORIONS: { lat: 35.669, lng: 139.762, name: "銀座オリオンズ", img: "https://images.unsplash.com/photo-1551024506-0bccd828d307?q=80&w=320", icon: "cake", time: "21:30", ticketIds: [] },
-      MEIJI: { lat: 35.676, lng: 139.699, name: "明治神宮", img: "https://images.unsplash.com/photo-1549693578-d683be217e58?q=80&w=320", icon: "map-pin", time: "10:00", ticketIds: [3] },
-      SHINJUKU: { lat: 35.690, lng: 139.703, name: "新宿採買", img: "https://images.unsplash.com/photo-1536098565842-c4b11dc5082a?q=80&w=320", icon: "shopping-cart", time: "14:00", ticketIds: [3] },
-      EBISU: { lat: 35.646, lng: 139.710, name: "燒肉うしみつ (惠比壽)", img: "https://images.unsplash.com/photo-1514355315815-2b64b0216b14?q=80&w=320", icon: "flame", time: "18:00", ticketIds: [] },
-      AZABU: { lat: 35.654, lng: 139.736, name: "Bar Centifolia", img: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=320", icon: "glass-water", time: "21:30", ticketIds: [6] },
-      TOKYO_ST: { lat: 35.681, lng: 139.767, name: "東京車站 (美瑛鬆餅)", img: "https://images.unsplash.com/photo-1541830826426-4565cabb95d5?q=80&w=320", icon: "utensils", time: "10:45", ticketIds: [3] },
-      IMPERIAL: { lat: 35.683, lng: 139.752, name: "皇居二重橋", img: "https://images.unsplash.com/photo-1533230398663-8890787d903f?q=80&w=320", icon: "landmark", time: "12:30", ticketIds: [] },
-      UENO: { lat: 35.712, lng: 139.775, name: "上野 Yamashiroya", img: "https://images.unsplash.com/photo-1512100356956-c1b472488d23?q=80&w=320", icon: "ghost", time: "14:00", ticketIds: [] },
-      FUJI: { lat: 35.500, lng: 138.760, name: "富士山河口湖", img: "https://images.unsplash.com/photo-1490806678507-2c091999298e?q=80&w=320", icon: "mountain", time: "07:50", ticketIds: [4] }
+      NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
+      MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", time: "18:30" },
+      ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺", time: "19:30" },
+      TOYOSU: { lat: 35.649, lng: 139.789, name: "teamLab", time: "12:30" },
+      SHIBUYA: { lat: 35.658, lng: 139.702, name: "Shibuya Sky", time: "16:40" },
+      OMOTESANDO: { lat: 35.666, lng: 139.710, name: "表參道", time: "10:00" },
+      FUJI: { lat: 35.500, lng: 138.760, name: "富士山河口湖", time: "10:30" },
+      TOKYO_ST: { lat: 35.681, lng: 139.767, name: "東京車站", time: "10:30" },
+      UENO: { lat: 35.712, lng: 139.775, name: "上野", time: "14:00" }
     };
 
     const dailyItineraryData = {
-      1: { points: ["NRT", "MINOWA", "ASAKUSA", "SKYTREE"], routes: [{ from: "NRT", to: "MINOWA", type: "subway" }, { from: "MINOWA", to: "ASAKUSA", type: "subway" }, { from: "ASAKUSA", to: "SKYTREE", type: "walking" }] },
-      2: { points: ["MINOWA", "TOYOSU", "SHIBUYA", "KIWAMIYA"], routes: [{ from: "MINOWA", to: "TOYOSU", type: "subway" }, { from: "TOYOSU", to: "SHIBUYA", type: "subway" }, { from: "SHIBUYA", to: "KIWAMIYA", type: "walking" }] },
-      3: { points: ["MINOWA", "GINZA", "FUJI", "GINZA", "ORIONS"], routes: [{ from: "MINOWA", to: "GINZA", type: "subway" }, { from: "GINZA", to: "FUJI", type: "subway" }, { from: "FUJI", to: "GINZA", type: "subway" }, { from: "GINZA", to: "ORIONS", type: "walking" }] },
-      4: { points: ["MINOWA", "MEIJI", "SHINJUKU", "EBISU", "AZABU"], routes: [{ from: "MINOWA", to: "MEIJI", type: "subway" }, { from: "MEIJI", to: "SHINJUKU", type: "subway" }, { from: "SHINJUKU", to: "EBISU", type: "subway" }, { from: "EBISU", to: "AZABU", type: "subway" }] },
-      5: { points: ["MINOWA", "TOKYO_ST", "IMPERIAL", "UENO", "NRT"], routes: [{ from: "MINOWA", to: "TOKYO_ST", type: "subway" }, { from: "TOKYO_ST", to: "IMPERIAL", type: "walking" }, { from: "IMPERIAL", to: "UENO", type: "subway" }, { from: "UENO", to: "NRT", type: "subway" }] }
+      1: { points: ["NRT", "MINOWA", "ASAKUSA"] },
+      2: { points: ["ASAKUSA", "TOYOSU", "SHIBUYA"] },
+      3: { points: ["MINOWA", "OMOTESANDO", "SHIBUYA"] },
+      4: { points: ["MINOWA", "FUJI"] },
+      5: { points: ["MINOWA", "TOKYO_ST", "UENO", "NRT"] }
     };
 
-    function saveToStorage() { 
-        localStorage.setItem('tokyo_2026_tickets', JSON.stringify(tickets)); 
-        localStorage.setItem('tokyo_2026_shopping', JSON.stringify(shoppingItems));
-    }
-
+    let map = null, markersLayer = null;
     function initMap() {
       if (map) return;
-      map = L.map('travel-leaflet-map', { zoomControl: true, scrollWheelZoom: false }).setView([35.681, 139.767], 12);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(map);
+      map = L.map('travel-leaflet-map', { zoomControl: false, scrollWheelZoom: false }).setView([35.681, 139.767], 12);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
       markersLayer = L.layerGroup().addTo(map);
-      routesLayer = L.layerGroup().addTo(map);
-      renderMap(activeDay);
+      renderMap(1);
     }
 
     function renderMap(day) {
-      if (!map) return;
-      markersLayer.clearLayers(); routesLayer.clearLayers();
-      const data = dailyItineraryData[day];
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+      const points = dailyItineraryData[day].points;
       const latlngs = [];
-      data.routes.forEach(route => {
-        const from = mapNodes[route.from], to = mapNodes[route.to], isSubway = route.type === 'subway';
-        L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: isSubway ? '#1e3a8a' : '#94a3b8', weight: 5, opacity: 0.8 }).addTo(routesLayer);
+      points.forEach((key, i) => {
+        const node = mapNodes[key];
+        latlngs.push([node.lat, node.lng]);
+        L.marker([node.lat, node.lng], { 
+          icon: L.divIcon({ className: 'bg-transparent', html: `<div class="marker-pin" data-index="${i+1}"></div><div class="marker-label">${node.name}</div>`, iconSize: [30, 42], iconAnchor: [15, 42] })
+        }).addTo(markersLayer).bindPopup(`<b>${node.name}</b><br>${node.time}`);
       });
-      data.points.forEach((key, i) => {
-        const node = mapNodes[key]; latlngs.push([node.lat, node.lng]);
-        const marker = L.marker([node.lat, node.lng], { icon: L.divIcon({ className: 'custom-div-icon', html: `<div class="marker-pin" data-index="${i+1}"></div><div class="marker-label">${node.name}</div>`, iconSize: [30, 42], iconAnchor: [15, 42] })}).addTo(markersLayer);
-        marker.bindPopup(createPopupHtml(node)).on('popupopen', () => lucide.createIcons());
-      });
-      map.fitBounds(L.latLngBounds(latlngs), { padding: [50, 50], maxZoom: 13 });
+      if (latlngs.length > 1) {
+        L.polyline(latlngs, { color: '#1e3a8a', weight: 4, dashArray: '10, 10', opacity: 0.5 }).addTo(markersLayer);
+        map.fitBounds(L.latLngBounds(latlngs), { padding: [50, 50] });
+      } else if (latlngs.length === 1) {
+        map.setView(latlngs[0], 13);
+      }
     }
 
-    function createPopupHtml(node) {
-      const ticketLinks = node.ticketIds.map(id => {
-        const t = tickets.find(x => x.id === id); if (!t || t.deleted) return '';
-        return `<div onclick="jumpToTicket(${id})" class="mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 flex items-center gap-2">
-          <i data-lucide="${t.type==='交通'?'train':'ticket'}" class="w-3.5 h-3.5 text-blue-900"></i>
-          <p class="text-[10px] font-bold text-blue-900 truncate">${t.name}</p>
-        </div>`;
-      }).join('');
-      return `<div class="w-full flex flex-col"><div class="h-24 overflow-hidden"><img src="${node.img}" class="w-full h-full object-cover"></div><div class="p-4"><div class="flex items-center gap-2 mb-2"><i data-lucide="${node.icon}" class="w-4 h-4 text-blue-900"></i><h3 class="font-bold text-sm">${node.name}</h3></div><p class="text-xs text-gray-500 mb-2">${node.time}</p>${ticketLinks}</div></div>`;
+    function resetMapView() {
+      const activeBtn = document.querySelector('.day-btn.active');
+      const day = activeBtn ? parseInt(activeBtn.id.replace('btn-day-', '')) : 1;
+      renderMap(day);
     }
 
-    function resetMapView() { renderMap(activeDay); }
-
-    function switchView(viewId) {
-      document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      const activeContent = document.getElementById('view-' + viewId);
-      const activeNav = document.getElementById('nav-' + viewId);
-      if (activeContent) activeContent.classList.add('active');
-      if (activeNav) activeNav.classList.add('active');
-      
-      if (viewId === 'wallet') renderTickets();
-      if (viewId === 'shopping') renderShopping();
-      if (viewId === 'itinerary') { setTimeout(initMap, 100); }
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl`;
+      const icon = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'info';
+      toast.innerHTML = `<i data-lucide="${icon}" class="w-3 h-3 ${type==='success'?'text-green-400':type==='error'?'text-red-400':'text-blue-400'}"></i> ${message}`;
+      container.appendChild(toast);
       lucide.createIcons();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
     }
 
-    function switchDay(day) {
-      activeDay = day;
-      document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('btn-day-' + day).classList.add('active');
-      document.querySelectorAll('.day-content').forEach(c => c.classList.remove('active'));
-      document.getElementById('content-day-' + day).classList.add('active');
-      renderMap(day); lucide.createIcons();
+    async function syncToCloud(item) {
+      if (!GAS_URL || GAS_URL.includes('/edit')) return;
+      updateSyncStatus('syncing');
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(item)
+        });
+        setTimeout(() => {
+          updateSyncStatus('online');
+          showToast('同步指令已發送', 'success');
+        }, 500);
+      } catch (err) {
+        updateSyncStatus('online');
+      }
     }
 
-    function setTicketFilter(section, category) {
-      filters[section] = category;
-      const control = document.getElementById(`filter-${section}`);
-      control.querySelectorAll('.segmented-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-filter') === category);
-      });
-      renderTickets();
+    async function loadFromCloud() {
+      if (!GAS_URL) {
+        showToast('請先填寫 GAS URL', 'error');
+        return;
+      }
+      if (GAS_URL.includes('/edit')) {
+        showToast('連線失敗：請確保使用的是部署網址 (/exec)', 'error');
+        return;
+      }
+
+      updateSyncStatus('syncing');
+      try {
+        const response = await fetch(GAS_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const cloudData = await response.json();
+        if (Array.isArray(cloudData)) {
+          cloudData.forEach(cloudItem => {
+            const localTicket = tickets.find(t => t.id === cloudItem.id);
+            if (localTicket) localTicket.status = cloudItem.status;
+            const localShop = shopItems.find(s => s.id === cloudItem.id);
+            if (localShop) localShop.status = cloudItem.status;
+            else if (cloudItem.id && cloudItem.id.toString().startsWith('s')) {
+              if (!shopItems.find(s => s.id === cloudItem.id)) shopItems.push({
+                id: cloudItem.id,
+                name: cloudItem.name || cloudItem.itemName,
+                status: cloudItem.status
+              });
+            }
+          });
+          renderAll();
+          updateSyncStatus('online');
+          showToast('雲端連線成功', 'success');
+        }
+      } catch (err) {
+        console.error('GAS Error:', err);
+        updateSyncStatus('offline');
+        showToast(`連線失敗：${err.message || '請確認 GAS 權限設定'}`, 'error');
+      }
     }
 
-    function togglePurchased(id) {
-      const t = tickets.find(x => x.id === id);
-      if (t) { t.purchased = !t.purchased; saveToStorage(); renderTickets(); }
+    function verifyUrlManually() {
+      const url = document.getElementById('gas-url-input').value;
+      if (url) window.open(url, '_blank');
+      else showToast('請先輸入網址', 'error');
     }
 
-    function handleTicketDelete(id) {
-      const t = tickets.find(x => x.id === id);
-      if (!t) return;
-      if (t.deleted) {
-        if (confirm('確定要永久刪除這張票券嗎？')) { tickets = tickets.filter(x => x.id !== id); }
-      } else { t.deleted = true; }
-      saveToStorage(); renderTickets();
-    }
-
-    function restoreTicket(id) {
-      const t = tickets.find(x => x.id === id);
-      if (t) { t.deleted = false; saveToStorage(); renderTickets(); }
+    function updateSyncStatus(status) {
+      const dot = document.getElementById('sync-dot');
+      const text = document.getElementById('sync-text');
+      dot.className = 'sync-indicator ' + (status === 'online' ? 'status-online' : status === 'syncing' ? 'status-syncing' : 'status-offline');
+      text.innerText = status.toUpperCase();
     }
 
     function renderTickets() {
-      const areas = { pending: document.getElementById('wallet-pending'), purchased: document.getElementById('wallet-purchased'), deleted: document.getElementById('wallet-deleted') };
-      if (!areas.pending || !areas.purchased || !areas.deleted) return;
-      areas.pending.innerHTML = ''; areas.purchased.innerHTML = ''; areas.deleted.innerHTML = '';
+      const pending = document.getElementById('wallet-pending');
+      const purchased = document.getElementById('wallet-purchased');
+      pending.innerHTML = ''; purchased.innerHTML = '';
       tickets.forEach(t => {
-        if (t.deleted) {
-          areas.deleted.innerHTML += createTicketCard(t, 'deleted');
-        } else {
-          const section = t.purchased ? 'purchased' : 'pending';
-          const filterVal = filters[section];
-          if (filterVal === '全部' || filterVal === t.type) {
-            areas[section].innerHTML += createTicketCard(t, section);
-          }
-        }
+        const isPurchased = t.status === '已購買';
+        const html = `
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex overflow-hidden relative">
+            <div class="w-16 flex flex-col items-center justify-center bg-gray-50/50 py-4"><i data-lucide="${t.type==='交通'?'train':'ticket'}" class="w-5 h-5 text-blue-900/30"></i></div>
+            <div class="flex-1 p-5 pr-16">
+              <h4 class="font-bold text-gray-800 ${isPurchased?'line-through text-gray-400':''}">${t.name}</h4>
+              <p class="text-[10px] text-gray-400 mt-1">${t.location}</p>
+              ${t.link ? `<a href="${t.link}" target="_blank" class="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-lg border border-blue-100">我的票券</a>` : ''}
+            </div>
+            <button onclick="toggleTicket('${t.id}')" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 ${isPurchased?'text-blue-900':'text-gray-200'}"><i data-lucide="check-circle" class="w-7 h-7"></i></button>
+          </div>`;
+        if (isPurchased) purchased.innerHTML += html; else pending.innerHTML += html;
       });
       lucide.createIcons();
     }
 
-    function createTicketCard(t, section) {
-      const isDeleted = section === 'deleted';
-      return `
-        <div id="ticket-card-${t.id}" class="bg-white rounded-xl shadow-sm border border-gray-100 flex overflow-hidden relative group transition-all">
-          <div class="ticket-stub w-20 flex flex-col items-center justify-center bg-gray-50/50 py-4">
-            <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">${t.type}</span>
-            <i data-lucide="${t.type==='交通'?'train':'ticket'}" class="w-5 h-5 text-blue-900/40"></i>
-          </div>
-          <div class="flex-1 p-5 pr-16">
-            <div class="flex items-center gap-2">
-              <h4 class="font-bold text-gray-800 ${t.purchased && !isDeleted ? 'line-through text-gray-400':''}">${t.name}</h4>
-              ${!isDeleted ? `<button onclick="openEditModal(${t.id})" class="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-blue-900 transition-all"><i data-lucide="edit-3" class="w-3 h-3"></i></button>` : ''}
+    function renderShop() {
+      const container = document.getElementById('shopping-list-container');
+      container.innerHTML = '';
+      shopItems.forEach(item => {
+        const isDone = item.status === '已購買';
+        container.innerHTML += `
+          <div class="bg-white p-4 rounded-xl flex items-center justify-between shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+              <button onclick="toggleShop('${item.id}')" class="${isDone?'text-green-500':'text-gray-300'}"><i data-lucide="${isDone?'check-circle-2':'circle'}" class="w-5 h-5"></i></button>
+              <span class="${isDone?'line-through text-gray-400':''} font-medium text-sm">${item.name}</span>
             </div>
-            <p class="text-[10px] text-gray-400 mt-1">${t.location}</p>
-          </div>
-          <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-            ${isDeleted ? `
-              <button onclick="restoreTicket(${t.id})" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all" title="還原"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
-              <button onclick="handleTicketDelete(${t.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="永久刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            ` : `
-              <button onclick="togglePurchased(${t.id})" class="p-2 ${t.purchased?'text-blue-900 bg-blue-50':'text-gray-300 hover:text-green-600'} rounded-lg transition-all">
-                <i data-lucide="check-circle" class="w-5 h-5"></i>
-              </button>
-              <button onclick="handleTicketDelete(${t.id})" class="p-2 text-gray-300 hover:text-red-500 rounded-lg transition-all">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
-            `}
-          </div>
-        </div>`;
+            <button onclick="removeShop('${item.id}')" class="text-gray-300 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>`;
+      });
+      lucide.createIcons();
+      localStorage.setItem('shop_items', JSON.stringify(shopItems));
     }
 
-    function renderShopping() {
-        const container = document.getElementById('shopping-list-container');
-        if (!container) return;
-        container.innerHTML = '';
-        const filtered = shoppingItems.filter(item => item.category === filters.shopping);
-        if (filtered.length === 0) {
-            container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-30"><i data-lucide="package-open" class="w-12 h-12 mb-2"></i><p class="text-sm">這個分類目前沒有東西喔</p></div>`;
-        } else {
-            filtered.forEach(item => {
-                container.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between group transition-all">
-                        <div class="flex items-center gap-4 cursor-pointer flex-1" onclick="toggleShoppingPurchased(${item.id})">
-                            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${item.purchased ? 'bg-blue-900 border-blue-900 text-white' : 'border-gray-200'}">
-                                ${item.purchased ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-800 transition-all ${item.purchased ? 'line-through text-gray-400' : ''}">${item.name}</h4>
-                                <div class="flex items-center gap-3 mt-1">
-                                    <span class="text-[10px] text-blue-900/60 font-bold bg-blue-50 px-1.5 py-0.5 rounded flex items-center gap-1"><i data-lucide="map-pin" class="w-2.5 h-2.5"></i> ${item.location}</span>
-                                    <span class="text-[10px] text-gray-400 font-medium">${item.remark}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button onclick="deleteShoppingItem(${item.id})" class="opacity-0 group-hover:opacity-100 p-2 text-gray-300 hover:text-red-500 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>`;
-            });
-        }
-        lucide.createIcons();
+    function toggleTicket(id) {
+      const t = tickets.find(x => x.id === id);
+      if (t) {
+        t.status = t.status === '已購買' ? '待準備' : '已購買';
+        renderTickets();
+        syncToCloud(t);
+      }
     }
 
-    function setShoppingFilter(cat) {
-        filters.shopping = cat;
-        const control = document.getElementById('filter-shopping');
-        control.querySelectorAll('.segmented-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-filter') === cat);
-        });
-        renderShopping();
+    function toggleShop(id) {
+      const item = shopItems.find(x => x.id === id);
+      if (item) {
+        item.status = item.status === '已購買' ? '未購買' : '已購買';
+        renderShop();
+        syncToCloud(item);
+      }
     }
 
-    function toggleShoppingPurchased(id) {
-        const item = shoppingItems.find(x => x.id === id);
-        if (item) { item.purchased = !item.purchased; saveToStorage(); renderShopping(); }
+    function addShopItem() {
+      const input = document.getElementById('shop-input');
+      if (!input.value) return;
+      const newItem = { id: 's' + Date.now(), name: input.value, status: '未購買' };
+      shopItems.push(newItem);
+      input.value = '';
+      renderShop();
+      syncToCloud(newItem);
     }
 
-    function deleteShoppingItem(id) {
-        shoppingItems = shoppingItems.filter(x => x.id !== id);
-        saveToStorage(); renderShopping();
+    function removeShop(id) {
+      shopItems = shopItems.filter(x => x.id !== id);
+      renderShop();
     }
 
-    function addShoppingItem() {
-        const name = document.getElementById('shop-input-name').value.trim();
-        const loc = document.getElementById('shop-input-location').value.trim() || '不限地點';
-        const remark = document.getElementById('shop-input-remark').value.trim() || '';
-        const cat = document.getElementById('shop-input-category').value;
-        if (!name) return alert('請輸入商品名稱');
-        const newItem = { id: Date.now(), category: cat, name: name, location: loc, remark: remark, purchased: false };
-        shoppingItems.push(newItem); saveToStorage();
-        document.getElementById('shop-input-name').value = ''; document.getElementById('shop-input-location').value = ''; document.getElementById('shop-input-remark').value = '';
-        if (filters.shopping === cat) { renderShopping(); } else { setShoppingFilter(cat); }
+    function switchView(view) {
+      document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + view).classList.add('active');
+      document.getElementById('nav-' + view).classList.add('active');
+      if (view === 'itinerary') setTimeout(initMap, 100);
+      lucide.createIcons();
     }
 
-    let currentEditId = null;
-    function openEditModal(id) { 
-      currentEditId = id; const t = tickets.find(x => x.id === id); 
-      if (t) { document.getElementById('edit-input').value = t.name; document.getElementById('edit-modal').classList.add('active'); }
-    }
-    function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
-    function saveEdit() { 
-      const name = document.getElementById('edit-input').value.trim(); 
-      if(name && currentEditId) { 
-        const t = tickets.find(x => x.id === currentEditId); 
-        if (t) { t.name = name; saveToStorage(); renderTickets(); closeEditModal(); }
-      } 
+    function switchDay(day) {
+      document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn-day-' + day).classList.add('active');
+      document.querySelectorAll('.day-content').forEach(content => content.classList.remove('active'));
+      document.getElementById('content-day-' + day).classList.add('active');
+      renderMap(day);
+      lucide.createIcons();
     }
 
-    window.onload = () => { 
-      if(document.getElementById('view-itinerary').classList.contains('active')) initMap(); 
-      renderTickets(); renderShopping();
+    function toggleSettings() {
+      document.getElementById('settings-modal').classList.toggle('active');
+      const input = document.getElementById('gas-url-input');
+      input.value = GAS_URL;
+      checkUrlFormat(GAS_URL);
+      lucide.createIcons();
+    }
+
+    function checkUrlFormat(url) {
+        const warning = document.getElementById('url-warning');
+        if (url.includes('/edit')) warning.classList.remove('hidden');
+        else warning.classList.add('hidden');
+    }
+
+    document.getElementById('gas-url-input')?.addEventListener('input', (e) => {
+        checkUrlFormat(e.target.value);
+    });
+
+    function saveSettings() {
+      GAS_URL = document.getElementById('gas-url-input').value || DEFAULT_GAS_URL;
+      localStorage.setItem('gas_url', GAS_URL);
+      toggleSettings();
+      loadFromCloud();
+    }
+
+    function renderAll() {
+      renderTickets();
+      renderShop();
+    }
+
+    window.onload = () => {
+      initMap();
+      renderAll();
+      if (GAS_URL && !GAS_URL.includes('/edit')) loadFromCloud();
     };
   </script>
 </body>
