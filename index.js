@@ -63,6 +63,7 @@ const dailyItineraryData = {
 
 let currentDay = 1;
 let map = null, markersLayer = null;
+let lastCloudDataStr = '';
 
 function saveToLocal() {
   localStorage.setItem('tickets_data', JSON.stringify(tickets));
@@ -115,21 +116,40 @@ async function syncToCloud(item) {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(item)
     });
+    // Optimistic success visual
     setTimeout(() => {
-      updateSyncStatus('online');
-    }, 500);
+      if (document.getElementById('sync-text').innerText === 'SYNCING') {
+         updateSyncStatus('online');
+      }
+    }, 800);
   } catch (err) {
+    console.error('Sync failed:', err);
     updateSyncStatus('offline');
   }
 }
 
-async function loadFromCloud() {
+async function loadFromCloud(isBackground = false) {
   if (!GAS_URL || GAS_URL.includes('/edit')) return;
-  updateSyncStatus('syncing');
+  
+  if (!isBackground) updateSyncStatus('syncing');
+
   try {
-    const response = await fetch(GAS_URL, { cache: 'no-store' });
+    // Add cache busting
+    const response = await fetch(`${GAS_URL}?t=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
     const cloudData = await response.json();
+    const currentCloudStr = JSON.stringify(cloudData);
+
+    // If data from cloud hasn't changed since last fetch, skip processing to prevent UI glitches/race conditions
+    if (currentCloudStr === lastCloudDataStr) {
+      if (!isBackground) updateSyncStatus('online');
+      return;
+    }
+    lastCloudDataStr = currentCloudStr;
+
+    let hasChanges = false;
+
     if (Array.isArray(cloudData)) {
       cloudData.forEach(cloudItem => {
         const id = cloudItem.id || cloudItem.itemId;
@@ -138,8 +158,11 @@ async function loadFromCloud() {
         // 1. Handle Tickets
         const tIdx = tickets.findIndex((t) => t.id == id);
         if (tIdx !== -1) {
-          tickets[tIdx].status = cloudItem.status;
-          return; // Item processed
+          if (tickets[tIdx].status !== cloudItem.status) {
+            tickets[tIdx].status = cloudItem.status;
+            hasChanges = true;
+          }
+          return; 
         }
 
         // 2. Handle Shop Items
@@ -149,12 +172,16 @@ async function loadFromCloud() {
           if (cloudItem.status === 'DELETED') {
             if (sIdx !== -1) {
               shopItems.splice(sIdx, 1);
+              hasChanges = true;
             }
           } else {
             if (sIdx !== -1) {
-              // Update existing
-              shopItems[sIdx].status = cloudItem.status;
-              if (cloudItem.name) shopItems[sIdx].name = cloudItem.name;
+              // Update existing only if changed
+              if (shopItems[sIdx].status !== cloudItem.status || shopItems[sIdx].name !== cloudItem.name) {
+                shopItems[sIdx].status = cloudItem.status;
+                if (cloudItem.name) shopItems[sIdx].name = cloudItem.name;
+                hasChanges = true;
+              }
             } else {
               // Add new item
               shopItems.push({
@@ -162,17 +189,22 @@ async function loadFromCloud() {
                 name: cloudItem.name || '未命名商品',
                 status: cloudItem.status
               });
+              hasChanges = true;
             }
           }
         }
       });
-      saveToLocal();
-      renderAll();
+      
+      if (hasChanges) {
+        saveToLocal();
+        renderAll();
+        if (isBackground) console.log('Synced data from cloud');
+      }
       updateSyncStatus('online');
     }
   } catch (err) {
     console.error(err);
-    updateSyncStatus('offline');
+    if (!isBackground) updateSyncStatus('offline');
   }
 }
 
@@ -314,6 +346,11 @@ function initializeApp() {
 
   renderAll();
   loadFromCloud();
+
+  // Start polling every 3 seconds
+  setInterval(() => {
+    loadFromCloud(true);
+  }, 3000);
 
   // Scroll effect for floating navbar
   let lastScrollY = 0;
