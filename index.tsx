@@ -2,6 +2,12 @@
 
 // Application logic for Tokyo Duo BAKA 2026
 
+declare global {
+  interface Window {
+    lucide: any;
+  }
+}
+
 declare const L: any;
 
 const DEFAULT_TICKETS = [
@@ -23,7 +29,7 @@ let shopItems = JSON.parse(localStorage.getItem('shop_items') || 'null') || [
   { id: 's2', name: 'Uniqlo C 系列外套', status: '未購買' }
 ];
 
-const mapNodes: any = {
+const mapNodes: Record<string, { lat: number; lng: number; name: string; time: string }> = {
   NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
   MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", time: "18:30" },
   ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺/和裝", time: "19:30" },
@@ -44,7 +50,7 @@ const mapNodes: any = {
   PALACE: { lat: 35.681, lng: 139.754, name: "皇居二重橋", time: "12:30" }
 };
 
-const dailyItineraryData: any = {
+const dailyItineraryData: Record<number, { points: string[] }> = {
   1: { points: ["NRT", "MINOWA", "ASAKUSA"] },
   2: { points: ["ASAKUSA", "TOYOSU", "SHIBUYA"] },
   3: { points: ["OMOTESANDO", "HARAJUKU", "EBISU"] },
@@ -84,7 +90,7 @@ function showToast(message: string, type = 'info') {
   toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}"></i> <span class="text-sm font-bold text-gray-800">${message}</span>`;
   container.appendChild(toast);
   
-  if ((window as any).lucide) (window as any).lucide.createIcons();
+  if (window.lucide) window.lucide.createIcons();
   
   requestAnimationFrame(() => {
     toast.classList.remove('translate-y-4', 'opacity-0');
@@ -122,7 +128,7 @@ async function loadFromCloud() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const cloudData = await response.json();
     if (Array.isArray(cloudData)) {
-      cloudData.forEach((cloudItem: any) => {
+      cloudData.forEach(cloudItem => {
         const id = cloudItem.id || cloudItem.itemId;
         if (!id) return;
         const tIdx = tickets.findIndex((t: any) => t.id == id);
@@ -166,7 +172,7 @@ function renderMap(day: number) {
   markersLayer.clearLayers();
   const points = dailyItineraryData[day].points;
   const latlngs: any[] = [];
-  points.forEach((key: string, i: number) => {
+  points.forEach((key, i) => {
     const node = mapNodes[key];
     if (!node) return;
     latlngs.push([node.lat, node.lng]);
@@ -209,7 +215,7 @@ function renderTickets() {
   pending.innerHTML = tickets.filter((t: any) => t.status !== '已購買').map(createTicketHTML).join('');
   purchased.innerHTML = tickets.filter((t: any) => t.status === '已購買').map(createTicketHTML).join('');
   
-  if ((window as any).lucide) (window as any).lucide.createIcons();
+  if (window.lucide) window.lucide.createIcons();
   
   tickets.forEach((t: any) => {
     document.getElementById(`toggle-t-${t.id}`)?.addEventListener('click', () => {
@@ -240,7 +246,7 @@ function renderShop() {
       </div>`;
   }).join('');
   
-  if ((window as any).lucide) (window as any).lucide.createIcons();
+  if (window.lucide) window.lucide.createIcons();
 
   shopItems.forEach((item: any) => {
     document.getElementById(`toggle-s-${item.id}`)?.addEventListener('click', () => {
@@ -266,7 +272,7 @@ function renderAll() {
 
 function initializeApp() {
   console.log('Initializing App...');
-  if ((window as any).lucide) (window as any).lucide.createIcons();
+  if (window.lucide) window.lucide.createIcons();
   
   // Initial map call with timeout to ensure DOM is ready
   setTimeout(() => {
@@ -333,7 +339,7 @@ function initializeApp() {
   // Settings Modal Handlers
   document.getElementById('settings-trigger')?.addEventListener('click', () => {
     document.getElementById('settings-modal')?.classList.add('active');
-    const input = document.getElementById('gas-url-input') as HTMLInputElement | null;
+    const input = document.getElementById('gas-url-input') as HTMLInputElement;
     if (input) input.value = GAS_URL;
   });
 
@@ -342,7 +348,7 @@ function initializeApp() {
   });
 
   document.getElementById('save-settings-btn')?.addEventListener('click', () => {
-    const input = document.getElementById('gas-url-input') as HTMLInputElement | null;
+    const input = document.getElementById('gas-url-input') as HTMLInputElement;
     GAS_URL = (input && input.value) ? input.value : DEFAULT_GAS_URL;
     localStorage.setItem('gas_url', GAS_URL);
     document.getElementById('settings-modal')?.classList.remove('active');
@@ -357,7 +363,7 @@ function initializeApp() {
 
   // Shopping Add Handler
   document.getElementById('add-shop-btn')?.addEventListener('click', () => {
-    const input = document.getElementById('shop-input') as HTMLInputElement | null;
+    const input = document.getElementById('shop-input') as HTMLInputElement;
     if (!input || !input.value.trim()) return;
     const newItem = { id: 's' + Date.now(), name: input.value.trim(), status: '未購買' };
     shopItems.push(newItem);
