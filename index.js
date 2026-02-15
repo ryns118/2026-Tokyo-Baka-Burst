@@ -146,15 +146,18 @@ async function loadFromCloud(isBackground = false) {
         if (!id) return;
         
         // 1. Handle Tickets
+        // Use loose equality (==) to handle potential string/number mismatches from JSON
         const tIdx = tickets.findIndex((t) => t.id == id);
         if (tIdx !== -1) {
           if (tickets[tIdx].status !== cloudItem.status) {
             tickets[tIdx].status = cloudItem.status;
             hasChanges = true;
           }
+          return; // Processed as ticket
         }
 
         // 2. Handle Shop Items
+        // Ensure ID is treated as string for check
         if (String(id).startsWith('s')) {
           const sIdx = shopItems.findIndex((s) => s.id == id);
           
@@ -166,7 +169,7 @@ async function loadFromCloud(isBackground = false) {
           } else {
             if (sIdx !== -1) {
               // Update existing only if changed
-              if (shopItems[sIdx].status !== cloudItem.status || shopItems[sIdx].name !== cloudItem.name) {
+              if (shopItems[sIdx].status !== cloudItem.status || (cloudItem.name && shopItems[sIdx].name !== cloudItem.name)) {
                 shopItems[sIdx].status = cloudItem.status;
                 if (cloudItem.name) shopItems[sIdx].name = cloudItem.name;
                 hasChanges = true;
@@ -189,7 +192,13 @@ async function loadFromCloud(isBackground = false) {
         renderAll();
         if (isBackground) console.log('Synced data from cloud');
       }
+      
       updateSyncStatus('online');
+      
+      // Feature request: Toast on manual load
+      if (!isBackground) {
+        showToast('雲端已同步', 'success');
+      }
     }
   } catch (err) {
     console.error(err);
