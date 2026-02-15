@@ -1,3 +1,5 @@
+// CSS is now loaded via index.html link tag
+
 // Application logic for Tokyo Duo BAKA 2026
 
 declare const L: any;
