@@ -15,7 +15,18 @@ const DEFAULT_TICKETS = [
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwj98SSWaJsumdB2C0cTuOt0bgQM1j1t8pOUEbOJYGyTwFYqV6koO7PrYIJEZQSeQ3CCQ/exec';
 
 let GAS_URL = localStorage.getItem('gas_url') || DEFAULT_GAS_URL;
-let tickets = JSON.parse(localStorage.getItem('tickets_data') || 'null') || [...DEFAULT_TICKETS];
+
+// Initialize tickets by merging defaults with local storage to ensure new tickets appear
+let storedTickets = JSON.parse(localStorage.getItem('tickets_data') || 'null');
+let tickets = [...DEFAULT_TICKETS];
+if (storedTickets) {
+  tickets = tickets.map(t => {
+    const found = storedTickets.find(st => st.id === t.id);
+    if (found) return { ...t, status: found.status };
+    return t;
+  });
+}
+
 let shopItems = JSON.parse(localStorage.getItem('shop_items') || 'null') || [
   { id: 's1', name: 'ADDICTION 腮紅', status: '未購買' },
   { id: 's2', name: 'Uniqlo C 系列外套', status: '未購買' }
@@ -123,14 +134,44 @@ async function loadFromCloud() {
       cloudData.forEach(cloudItem => {
         const id = cloudItem.id || cloudItem.itemId;
         if (!id) return;
+        
+        // 1. Handle Tickets
         const tIdx = tickets.findIndex((t) => t.id == id);
-        if (tIdx !== -1) tickets[tIdx].status = cloudItem.status;
+        if (tIdx !== -1) {
+          tickets[tIdx].status = cloudItem.status;
+          return; // Item processed
+        }
+
+        // 2. Handle Shop Items
+        if (id.startsWith('s')) {
+          const sIdx = shopItems.findIndex((s) => s.id == id);
+          
+          if (cloudItem.status === 'DELETED') {
+            if (sIdx !== -1) {
+              shopItems.splice(sIdx, 1);
+            }
+          } else {
+            if (sIdx !== -1) {
+              // Update existing
+              shopItems[sIdx].status = cloudItem.status;
+              if (cloudItem.name) shopItems[sIdx].name = cloudItem.name;
+            } else {
+              // Add new item
+              shopItems.push({
+                id: id,
+                name: cloudItem.name || '未命名商品',
+                status: cloudItem.status
+              });
+            }
+          }
+        }
       });
       saveToLocal();
       renderAll();
       updateSyncStatus('online');
     }
   } catch (err) {
+    console.error(err);
     updateSyncStatus('offline');
   }
 }
