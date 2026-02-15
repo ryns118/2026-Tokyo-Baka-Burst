@@ -1,6 +1,6 @@
-
-
 // Application logic for Tokyo Duo BAKA 2026
+
+declare const L: any;
 
 const DEFAULT_TICKETS = [
   { id: 't1', type: '交通', name: 'Skyliner 去程 (NRT → 市區)', location: 'Klook', status: '待準備' },
@@ -81,8 +81,8 @@ function showToast(message, type = 'info') {
   const icon = type === 'success' ? 'check-circle' : 'info';
   toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}"></i> <span class="text-sm font-bold text-gray-800">${message}</span>`;
   container.appendChild(toast);
-  // @ts-ignore
-  lucide.createIcons();
+  
+  if ((window as any).lucide) (window as any).lucide.createIcons();
   
   requestAnimationFrame(() => {
     toast.classList.remove('translate-y-4', 'opacity-0');
@@ -143,13 +143,17 @@ function initMap() {
     return;
   }
   
-  // @ts-ignore
+  if (typeof L === 'undefined') {
+    console.error('Leaflet not loaded');
+    return;
+  }
+  
   map = L.map('travel-leaflet-map', { zoomControl: false, scrollWheelZoom: false }).setView([35.681, 139.767], 12);
-  // @ts-ignore
+  
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; CartoDB'
   }).addTo(map);
-  // @ts-ignore
+  
   markersLayer = L.layerGroup().addTo(map);
   
   renderMap(currentDay);
@@ -164,9 +168,8 @@ function renderMap(day) {
     const node = mapNodes[key];
     if (!node) return;
     latlngs.push([node.lat, node.lng]);
-    // @ts-ignore
+    
     L.marker([node.lat, node.lng], { 
-      // @ts-ignore
       icon: L.divIcon({ 
         className: 'bg-transparent', 
         html: `<div class="marker-pin" data-index="${i+1}"></div>`, 
@@ -176,22 +179,14 @@ function renderMap(day) {
   });
   
   if (latlngs.length > 0) {
-    // @ts-ignore
     L.polyline(latlngs, { color: '#d9333f', weight: 4, dashArray: '8, 12', opacity: 0.5 }).addTo(markersLayer);
-    // @ts-ignore
     map.fitBounds(L.latLngBounds(latlngs), { padding: [60, 60], animate: true });
   }
 }
 
-function renderTickets() {
-  const pending = document.getElementById('wallet-pending');
-  const purchased = document.getElementById('wallet-purchased');
-  if (!pending || !purchased) return;
-  pending.innerHTML = ''; purchased.innerHTML = '';
-  
-  tickets.forEach(t => {
-    const isPurchased = t.status === '已購買';
-    const html = `
+function createTicketHTML(t) {
+  const isPurchased = t.status === '已購買';
+  return `
       <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 flex overflow-hidden relative group active:scale-[0.98] transition-all">
         <div class="w-16 flex flex-col items-center justify-center bg-gray-50/50 py-4"><i data-lucide="${t.type === '交通' ? 'train-front' : 'ticket'}" class="w-5 h-5 text-red-600/30"></i></div>
         <div class="flex-1 p-5 pr-16">
@@ -202,11 +197,17 @@ function renderTickets() {
           <i data-lucide="${isPurchased ? 'check-circle' : 'circle'}" class="w-7 h-7"></i>
         </button>
       </div>`;
-    if (isPurchased) purchased.innerHTML += html; else pending.innerHTML += html;
-  });
+}
+
+function renderTickets() {
+  const pending = document.getElementById('wallet-pending');
+  const purchased = document.getElementById('wallet-purchased');
+  if (!pending || !purchased) return;
   
-  // @ts-ignore
-  lucide.createIcons();
+  pending.innerHTML = tickets.filter(t => t.status !== '已購買').map(createTicketHTML).join('');
+  purchased.innerHTML = tickets.filter(t => t.status === '已購買').map(createTicketHTML).join('');
+  
+  if ((window as any).lucide) (window as any).lucide.createIcons();
   
   tickets.forEach(t => {
     document.getElementById(`toggle-t-${t.id}`)?.addEventListener('click', () => {
@@ -222,10 +223,10 @@ function renderTickets() {
 function renderShop() {
   const container = document.getElementById('shopping-list-container');
   if (!container) return;
-  container.innerHTML = '';
-  shopItems.forEach(item => {
+  
+  container.innerHTML = shopItems.map(item => {
     const isDone = item.status === '已購買';
-    container.innerHTML += `
+    return `
       <div class="bg-white p-5 rounded-[20px] flex items-center justify-between shadow-sm border border-gray-100 active:scale-[0.98] transition-all">
         <div class="flex items-center gap-4">
           <button id="toggle-s-${item.id}" class="${isDone ? 'text-green-500' : 'text-gray-300'}">
@@ -235,9 +236,9 @@ function renderShop() {
         </div>
         <button id="del-s-${item.id}" class="text-gray-200 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
       </div>`;
-  });
-  // @ts-ignore
-  lucide.createIcons();
+  }).join('');
+  
+  if ((window as any).lucide) (window as any).lucide.createIcons();
 
   shopItems.forEach(item => {
     document.getElementById(`toggle-s-${item.id}`)?.addEventListener('click', () => {
@@ -262,8 +263,8 @@ function renderAll() {
 }
 
 function initializeApp() {
-  // @ts-ignore
-  lucide.createIcons();
+  console.log('Initializing App...');
+  if ((window as any).lucide) (window as any).lucide.createIcons();
   
   // Initial map call with timeout to ensure DOM is ready
   setTimeout(() => {
@@ -301,7 +302,10 @@ function initializeApp() {
       btn.classList.add('active');
       
       if (view === 'itinerary') {
-        setTimeout(initMap, 100);
+        setTimeout(() => {
+          if (map) map.invalidateSize();
+          else initMap();
+        }, 100);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -337,7 +341,7 @@ function initializeApp() {
 
   document.getElementById('save-settings-btn')?.addEventListener('click', () => {
     const input = document.getElementById('gas-url-input') as HTMLInputElement;
-    GAS_URL = input.value || DEFAULT_GAS_URL;
+    GAS_URL = (input && input.value) ? input.value : DEFAULT_GAS_URL;
     localStorage.setItem('gas_url', GAS_URL);
     document.getElementById('settings-modal')?.classList.remove('active');
     loadFromCloud();
@@ -352,7 +356,7 @@ function initializeApp() {
   // Shopping Add Handler
   document.getElementById('add-shop-btn')?.addEventListener('click', () => {
     const input = document.getElementById('shop-input') as HTMLInputElement;
-    if (!input.value.trim()) return;
+    if (!input || !input.value.trim()) return;
     const newItem = { id: 's' + Date.now(), name: input.value.trim(), status: '未購買' };
     shopItems.push(newItem);
     input.value = '';
