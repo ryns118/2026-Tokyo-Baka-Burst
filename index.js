@@ -63,7 +63,6 @@ const dailyItineraryData = {
 
 let currentDay = 1;
 let map = null, markersLayer = null;
-let lastCloudDataStr = '';
 
 function saveToLocal() {
   localStorage.setItem('tickets_data', JSON.stringify(tickets));
@@ -139,15 +138,6 @@ async function loadFromCloud(isBackground = false) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const cloudData = await response.json();
-    const currentCloudStr = JSON.stringify(cloudData);
-
-    // If data from cloud hasn't changed since last fetch, skip processing to prevent UI glitches/race conditions
-    if (currentCloudStr === lastCloudDataStr) {
-      if (!isBackground) updateSyncStatus('online');
-      return;
-    }
-    lastCloudDataStr = currentCloudStr;
-
     let hasChanges = false;
 
     if (Array.isArray(cloudData)) {
@@ -162,11 +152,10 @@ async function loadFromCloud(isBackground = false) {
             tickets[tIdx].status = cloudItem.status;
             hasChanges = true;
           }
-          return; 
         }
 
         // 2. Handle Shop Items
-        if (id.startsWith('s')) {
+        if (String(id).startsWith('s')) {
           const sIdx = shopItems.findIndex((s) => s.id == id);
           
           if (cloudItem.status === 'DELETED') {
