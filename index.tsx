@@ -15,13 +15,13 @@ const DEFAULT_TICKETS = [
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwj98SSWaJsumdB2C0cTuOt0bgQM1j1t8pOUEbOJYGyTwFYqV6koO7PrYIJEZQSeQ3CCQ/exec';
 
 let GAS_URL = localStorage.getItem('gas_url') || DEFAULT_GAS_URL;
-let tickets = JSON.parse(localStorage.getItem('tickets_data')) || [...DEFAULT_TICKETS];
-let shopItems = JSON.parse(localStorage.getItem('shop_items')) || [
+let tickets = JSON.parse(localStorage.getItem('tickets_data') || 'null') || [...DEFAULT_TICKETS];
+let shopItems = JSON.parse(localStorage.getItem('shop_items') || 'null') || [
   { id: 's1', name: 'ADDICTION 腮紅', status: '未購買' },
   { id: 's2', name: 'Uniqlo C 系列外套', status: '未購買' }
 ];
 
-const mapNodes = {
+const mapNodes: any = {
   NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
   MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", time: "18:30" },
   ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺/和裝", time: "19:30" },
@@ -42,7 +42,7 @@ const mapNodes = {
   PALACE: { lat: 35.681, lng: 139.754, name: "皇居二重橋", time: "12:30" }
 };
 
-const dailyItineraryData = {
+const dailyItineraryData: any = {
   1: { points: ["NRT", "MINOWA", "ASAKUSA"] },
   2: { points: ["ASAKUSA", "TOYOSU", "SHIBUYA"] },
   3: { points: ["OMOTESANDO", "HARAJUKU", "EBISU"] },
@@ -51,14 +51,14 @@ const dailyItineraryData = {
 };
 
 let currentDay = 1;
-let map = null, markersLayer = null;
+let map: any = null, markersLayer: any = null;
 
 function saveToLocal() {
   localStorage.setItem('tickets_data', JSON.stringify(tickets));
   localStorage.setItem('shop_items', JSON.stringify(shopItems));
 }
 
-function updateSyncStatus(status) {
+function updateSyncStatus(status: string) {
   const dot = document.getElementById('sync-dot');
   const text = document.getElementById('sync-text');
   if (text) text.innerText = status.toUpperCase();
@@ -73,7 +73,7 @@ function updateSyncStatus(status) {
   }
 }
 
-function showToast(message, type = 'info') {
+function showToast(message: string, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
   const toast = document.createElement('div');
@@ -94,7 +94,7 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
 
-async function syncToCloud(item) {
+async function syncToCloud(item: any) {
   if (!GAS_URL || GAS_URL.includes('/edit')) return;
   updateSyncStatus('syncing');
   try {
@@ -120,10 +120,10 @@ async function loadFromCloud() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const cloudData = await response.json();
     if (Array.isArray(cloudData)) {
-      cloudData.forEach(cloudItem => {
+      cloudData.forEach((cloudItem: any) => {
         const id = cloudItem.id || cloudItem.itemId;
         if (!id) return;
-        const tIdx = tickets.findIndex(t => t.id == id);
+        const tIdx = tickets.findIndex((t: any) => t.id == id);
         if (tIdx !== -1) tickets[tIdx].status = cloudItem.status;
       });
       saveToLocal();
@@ -159,12 +159,12 @@ function initMap() {
   renderMap(currentDay);
 }
 
-function renderMap(day) {
+function renderMap(day: number) {
   if (!markersLayer || !map) return;
   markersLayer.clearLayers();
   const points = dailyItineraryData[day].points;
-  const latlngs = [];
-  points.forEach((key, i) => {
+  const latlngs: any[] = [];
+  points.forEach((key: string, i: number) => {
     const node = mapNodes[key];
     if (!node) return;
     latlngs.push([node.lat, node.lng]);
@@ -184,7 +184,7 @@ function renderMap(day) {
   }
 }
 
-function createTicketHTML(t) {
+function createTicketHTML(t: any) {
   const isPurchased = t.status === '已購買';
   return `
       <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 flex overflow-hidden relative group active:scale-[0.98] transition-all">
@@ -204,12 +204,12 @@ function renderTickets() {
   const purchased = document.getElementById('wallet-purchased');
   if (!pending || !purchased) return;
   
-  pending.innerHTML = tickets.filter(t => t.status !== '已購買').map(createTicketHTML).join('');
-  purchased.innerHTML = tickets.filter(t => t.status === '已購買').map(createTicketHTML).join('');
+  pending.innerHTML = tickets.filter((t: any) => t.status !== '已購買').map(createTicketHTML).join('');
+  purchased.innerHTML = tickets.filter((t: any) => t.status === '已購買').map(createTicketHTML).join('');
   
   if ((window as any).lucide) (window as any).lucide.createIcons();
   
-  tickets.forEach(t => {
+  tickets.forEach((t: any) => {
     document.getElementById(`toggle-t-${t.id}`)?.addEventListener('click', () => {
       t.status = t.status === '已購買' ? '待準備' : '已購買';
       saveToLocal();
@@ -224,7 +224,7 @@ function renderShop() {
   const container = document.getElementById('shopping-list-container');
   if (!container) return;
   
-  container.innerHTML = shopItems.map(item => {
+  container.innerHTML = shopItems.map((item: any) => {
     const isDone = item.status === '已購買';
     return `
       <div class="bg-white p-5 rounded-[20px] flex items-center justify-between shadow-sm border border-gray-100 active:scale-[0.98] transition-all">
@@ -240,7 +240,7 @@ function renderShop() {
   
   if ((window as any).lucide) (window as any).lucide.createIcons();
 
-  shopItems.forEach(item => {
+  shopItems.forEach((item: any) => {
     document.getElementById(`toggle-s-${item.id}`)?.addEventListener('click', () => {
       item.status = item.status === '已購買' ? '未購買' : '已購買';
       saveToLocal();
@@ -249,7 +249,7 @@ function renderShop() {
     });
     document.getElementById(`del-s-${item.id}`)?.addEventListener('click', () => {
       syncToCloud({ ...item, status: 'DELETED' });
-      shopItems = shopItems.filter(x => x.id !== item.id);
+      shopItems = shopItems.filter((x: any) => x.id !== item.id);
       saveToLocal();
       renderShop();
       showToast('項目已移除', 'info');
@@ -331,7 +331,7 @@ function initializeApp() {
   // Settings Modal Handlers
   document.getElementById('settings-trigger')?.addEventListener('click', () => {
     document.getElementById('settings-modal')?.classList.add('active');
-    const input = document.getElementById('gas-url-input') as HTMLInputElement;
+    const input = document.getElementById('gas-url-input') as HTMLInputElement | null;
     if (input) input.value = GAS_URL;
   });
 
@@ -340,7 +340,7 @@ function initializeApp() {
   });
 
   document.getElementById('save-settings-btn')?.addEventListener('click', () => {
-    const input = document.getElementById('gas-url-input') as HTMLInputElement;
+    const input = document.getElementById('gas-url-input') as HTMLInputElement | null;
     GAS_URL = (input && input.value) ? input.value : DEFAULT_GAS_URL;
     localStorage.setItem('gas_url', GAS_URL);
     document.getElementById('settings-modal')?.classList.remove('active');
@@ -355,7 +355,7 @@ function initializeApp() {
 
   // Shopping Add Handler
   document.getElementById('add-shop-btn')?.addEventListener('click', () => {
-    const input = document.getElementById('shop-input') as HTMLInputElement;
+    const input = document.getElementById('shop-input') as HTMLInputElement | null;
     if (!input || !input.value.trim()) return;
     const newItem = { id: 's' + Date.now(), name: input.value.trim(), status: '未購買' };
     shopItems.push(newItem);
