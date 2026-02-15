@@ -2,16 +2,6 @@
 
 // Application logic for Tokyo Duo BAKA 2026
 
-export {};
-
-declare global {
-  interface Window {
-    lucide: any;
-  }
-}
-
-declare const L: any;
-
 const DEFAULT_TICKETS = [
   { id: 't1', type: '交通', name: 'Skyliner 去程 (NRT → 市區)', location: 'Klook', status: '待準備' },
   { id: 't7', type: '交通', name: 'Skyliner 回程 (市區 → NRT)', location: 'Klook', status: '待準備' },
@@ -31,7 +21,7 @@ let shopItems = JSON.parse(localStorage.getItem('shop_items') || 'null') || [
   { id: 's2', name: 'Uniqlo C 系列外套', status: '未購買' }
 ];
 
-const mapNodes: Record<string, { lat: number; lng: number; name: string; time: string }> = {
+const mapNodes = {
   NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
   MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", time: "18:30" },
   ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺/和裝", time: "19:30" },
@@ -52,7 +42,7 @@ const mapNodes: Record<string, { lat: number; lng: number; name: string; time: s
   PALACE: { lat: 35.681, lng: 139.754, name: "皇居二重橋", time: "12:30" }
 };
 
-const dailyItineraryData: Record<number, { points: string[] }> = {
+const dailyItineraryData = {
   1: { points: ["NRT", "MINOWA", "ASAKUSA"] },
   2: { points: ["ASAKUSA", "TOYOSU", "SHIBUYA"] },
   3: { points: ["OMOTESANDO", "HARAJUKU", "EBISU"] },
@@ -61,14 +51,14 @@ const dailyItineraryData: Record<number, { points: string[] }> = {
 };
 
 let currentDay = 1;
-let map: any = null, markersLayer: any = null;
+let map = null, markersLayer = null;
 
 function saveToLocal() {
   localStorage.setItem('tickets_data', JSON.stringify(tickets));
   localStorage.setItem('shop_items', JSON.stringify(shopItems));
 }
 
-function updateSyncStatus(status: string) {
+function updateSyncStatus(status) {
   const dot = document.getElementById('sync-dot');
   const text = document.getElementById('sync-text');
   if (text) text.innerText = status.toUpperCase();
@@ -83,7 +73,7 @@ function updateSyncStatus(status: string) {
   }
 }
 
-function showToast(message: string, type = 'info') {
+function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
   const toast = document.createElement('div');
@@ -104,7 +94,7 @@ function showToast(message: string, type = 'info') {
   }, 3000);
 }
 
-async function syncToCloud(item: any) {
+async function syncToCloud(item) {
   if (!GAS_URL || GAS_URL.includes('/edit')) return;
   updateSyncStatus('syncing');
   try {
@@ -133,7 +123,7 @@ async function loadFromCloud() {
       cloudData.forEach(cloudItem => {
         const id = cloudItem.id || cloudItem.itemId;
         if (!id) return;
-        const tIdx = tickets.findIndex((t: any) => t.id == id);
+        const tIdx = tickets.findIndex((t) => t.id == id);
         if (tIdx !== -1) tickets[tIdx].status = cloudItem.status;
       });
       saveToLocal();
@@ -169,11 +159,11 @@ function initMap() {
   renderMap(currentDay);
 }
 
-function renderMap(day: number) {
+function renderMap(day) {
   if (!markersLayer || !map) return;
   markersLayer.clearLayers();
   const points = dailyItineraryData[day].points;
-  const latlngs: any[] = [];
+  const latlngs = [];
   points.forEach((key, i) => {
     const node = mapNodes[key];
     if (!node) return;
@@ -194,7 +184,7 @@ function renderMap(day: number) {
   }
 }
 
-function createTicketHTML(t: any) {
+function createTicketHTML(t) {
   const isPurchased = t.status === '已購買';
   return `
       <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 flex overflow-hidden relative group active:scale-[0.98] transition-all">
@@ -214,12 +204,12 @@ function renderTickets() {
   const purchased = document.getElementById('wallet-purchased');
   if (!pending || !purchased) return;
   
-  pending.innerHTML = tickets.filter((t: any) => t.status !== '已購買').map(createTicketHTML).join('');
-  purchased.innerHTML = tickets.filter((t: any) => t.status === '已購買').map(createTicketHTML).join('');
+  pending.innerHTML = tickets.filter((t) => t.status !== '已購買').map(createTicketHTML).join('');
+  purchased.innerHTML = tickets.filter((t) => t.status === '已購買').map(createTicketHTML).join('');
   
   if (window.lucide) window.lucide.createIcons();
   
-  tickets.forEach((t: any) => {
+  tickets.forEach((t) => {
     document.getElementById(`toggle-t-${t.id}`)?.addEventListener('click', () => {
       t.status = t.status === '已購買' ? '待準備' : '已購買';
       saveToLocal();
@@ -234,7 +224,7 @@ function renderShop() {
   const container = document.getElementById('shopping-list-container');
   if (!container) return;
   
-  container.innerHTML = shopItems.map((item: any) => {
+  container.innerHTML = shopItems.map((item) => {
     const isDone = item.status === '已購買';
     return `
       <div class="bg-white p-5 rounded-[20px] flex items-center justify-between shadow-sm border border-gray-100 active:scale-[0.98] transition-all">
@@ -250,7 +240,7 @@ function renderShop() {
   
   if (window.lucide) window.lucide.createIcons();
 
-  shopItems.forEach((item: any) => {
+  shopItems.forEach((item) => {
     document.getElementById(`toggle-s-${item.id}`)?.addEventListener('click', () => {
       item.status = item.status === '已購買' ? '未購買' : '已購買';
       saveToLocal();
@@ -259,7 +249,7 @@ function renderShop() {
     });
     document.getElementById(`del-s-${item.id}`)?.addEventListener('click', () => {
       syncToCloud({ ...item, status: 'DELETED' });
-      shopItems = shopItems.filter((x: any) => x.id !== item.id);
+      shopItems = shopItems.filter((x) => x.id !== item.id);
       saveToLocal();
       renderShop();
       showToast('項目已移除', 'info');
@@ -341,7 +331,7 @@ function initializeApp() {
   // Settings Modal Handlers
   document.getElementById('settings-trigger')?.addEventListener('click', () => {
     document.getElementById('settings-modal')?.classList.add('active');
-    const input = document.getElementById('gas-url-input') as HTMLInputElement;
+    const input = document.getElementById('gas-url-input');
     if (input) input.value = GAS_URL;
   });
 
@@ -350,7 +340,7 @@ function initializeApp() {
   });
 
   document.getElementById('save-settings-btn')?.addEventListener('click', () => {
-    const input = document.getElementById('gas-url-input') as HTMLInputElement;
+    const input = document.getElementById('gas-url-input');
     GAS_URL = (input && input.value) ? input.value : DEFAULT_GAS_URL;
     localStorage.setItem('gas_url', GAS_URL);
     document.getElementById('settings-modal')?.classList.remove('active');
@@ -365,7 +355,7 @@ function initializeApp() {
 
   // Shopping Add Handler
   document.getElementById('add-shop-btn')?.addEventListener('click', () => {
-    const input = document.getElementById('shop-input') as HTMLInputElement;
+    const input = document.getElementById('shop-input');
     if (!input || !input.value.trim()) return;
     const newItem = { id: 's' + Date.now(), name: input.value.trim(), status: '未購買' };
     shopItems.push(newItem);
