@@ -275,19 +275,30 @@ function initializeApp() {
   loadFromCloud();
 
   // Scroll effect for floating navbar
-  let lastScrollY = window.scrollY;
-  window.addEventListener('scroll', () => {
+  let lastScrollY = 0;
+  
+  const handleScroll = (e) => {
     const nav = document.getElementById('floating-nav');
     if (!nav) return;
-    const currentScrollY = window.scrollY;
+    
+    // Determine scroll position based on event target or window
+    let currentScrollY = window.scrollY;
+    if (e.target && e.target.scrollTop !== undefined) {
+       currentScrollY = e.target.scrollTop;
+    }
+    
     // Hide when scrolling down, show when scrolling up
-    if (currentScrollY > lastScrollY && currentScrollY > 120) {
+    if (currentScrollY > lastScrollY && currentScrollY > 60) {
       nav.classList.add('nav-hidden');
     } else {
       nav.classList.remove('nav-hidden');
     }
-    lastScrollY = currentScrollY;
-  }, { passive: true });
+    lastScrollY = currentScrollY > 0 ? currentScrollY : 0;
+  };
+
+  // Listen to both window and the itinerary sheet
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  document.getElementById('itinerary-content-sheet')?.addEventListener('scroll', handleScroll, { passive: true });
 
   // Navigation Click Handlers
   ['itinerary', 'wallet', 'shopping'].forEach(view => {
@@ -301,13 +312,24 @@ function initializeApp() {
       if (targetView) targetView.classList.add('active');
       btn.classList.add('active');
       
+      // Reset navbar state on view switch
+      lastScrollY = 0;
+      document.getElementById('floating-nav')?.classList.remove('nav-hidden');
+
       if (view === 'itinerary') {
         setTimeout(() => {
           if (map) map.invalidateSize();
           else initMap();
         }, 100);
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Scroll handling for view switch
+      if (view === 'itinerary') {
+        const sheet = document.getElementById('itinerary-content-sheet');
+        if (sheet) sheet.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
   });
 

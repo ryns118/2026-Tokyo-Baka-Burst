@@ -59,14 +59,11 @@
   </nav>
 
   <!-- View 1: Itinerary -->
-  <div id="view-itinerary" class="view-content active">
-    <!-- Hero -->
-    <div class="relative w-full h-[45vh] flex items-center justify-center overflow-hidden">
-      <!-- Added . to make paths relative in Vite processing -->
-      <img src="./banner.png" alt="Tokyo" class="absolute inset-0 w-full h-full object-cover pixelated" onerror="this.src='https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=2094&auto=format&fit=crop'">
-      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-var(--jp-washi)"></div>
+  <div id="view-itinerary" class="view-content active min-h-screen bg-[var(--jp-red)]">
+    <!-- Hero (Fixed) -->
+    <div class="fixed top-0 left-0 w-full h-[20vh] flex items-center justify-center overflow-hidden z-0 bg-[var(--jp-red)]">
       <div class="relative z-10 text-center px-6">
-        <h1 class="font-serif-jp text-5xl md:text-7xl text-white drop-shadow-2xl tracking-tight mb-2">東京 Duo BAKA</h1>
+        <h1 class="font-serif-jp text-5xl md:text-7xl text-white drop-shadow-sm tracking-tight mb-2">東京 Duo BAKA</h1>
         <div class="flex items-center justify-center gap-4 text-white/90">
           <span class="h-[1px] w-8 bg-white/50"></span>
           <p class="uppercase tracking-[0.5em] text-xs font-bold">Winter Journey 2026</p>
@@ -75,127 +72,130 @@
       </div>
     </div>
 
-    <!-- Info Bar -->
-    <div class="max-w-4xl mx-auto px-4 -mt-10 relative z-20">
-      
-      <!-- Day Tabs -->
-      <div id="day-tabs" class="flex overflow-x-auto py-6 scrollbar-hide space-x-3 justify-start md:justify-center mb-6 px-4">
-        <button id="btn-day-1" class="day-btn active flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all">Day 1</button>
-        <button id="btn-day-2" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all">Day 2</button>
-        <button id="btn-day-3" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all">Day 3</button>
-        <button id="btn-day-4" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all">Day 4</button>
-        <button id="btn-day-5" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all">Day 5</button>
-      </div>
+    <!-- Info Bar / Content Sheet -->
+    <div id="itinerary-content-sheet" class="fixed bottom-0 left-0 w-full h-[80vh] z-10 bg-[var(--jp-washi)] bg-pattern rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] overflow-y-auto pb-32">
+      <div class="max-w-4xl mx-auto px-4 pt-8">
+        
+        <!-- Day Tabs -->
+        <div id="day-tabs" class="flex overflow-x-auto py-2 pb-6 scrollbar-hide space-x-3 justify-start md:justify-center mb-6 px-2">
+          <button id="btn-day-1" class="day-btn active flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all shadow-sm">Day 1</button>
+          <button id="btn-day-2" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all shadow-sm">Day 2</button>
+          <button id="btn-day-3" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all shadow-sm">Day 3</button>
+          <button id="btn-day-4" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all shadow-sm">Day 4</button>
+          <button id="btn-day-5" class="day-btn flex-shrink-0 whitespace-nowrap px-7 py-3 rounded-2xl border bg-white font-bold text-sm transition-all shadow-sm">Day 5</button>
+        </div>
 
-      <!-- Itinerary Detail Cards -->
-      <div id="itinerary-details" class="japanese-card p-6 md:p-10 mb-10 min-h-[400px]">
-        <!-- Day 1 Content -->
-        <div id="content-day-1" class="day-content active">
-          <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
-            <h2 class="font-serif-jp text-3xl text-gray-800">抵達：古都之夜</h2>
-            <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/24 Tue</p>
+        <!-- Itinerary Detail Cards -->
+        <div id="itinerary-details" class="japanese-card p-6 md:p-10 mb-10 min-h-[400px]">
+          <!-- Day 1 Content -->
+          <div id="content-day-1" class="day-content active">
+            <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
+              <h2 class="font-serif-jp text-3xl text-gray-800">抵達：古都之夜</h2>
+              <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/24 Tue</p>
+            </div>
+            <div class="space-y-1">
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:15</div><div><h4 class="font-bold text-gray-800">抵達成田機場<span class="cat-badge cat-transport">交通</span></h4><p class="text-xs text-gray-500 mt-1">NRT T2 入境。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">18:30</div><div><h4 class="font-bold text-gray-800">三之輪飯店辦理入住<span class="cat-badge cat-stay">住宿</span></h4><p class="text-xs text-gray-500 mt-1">Hotel Check-in。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:30</div><div><h4 class="font-bold text-gray-800">淺草寺雷門<span class="cat-badge cat-activity">景點</span></h4><p class="text-xs text-gray-500 mt-1">夜遊淺草。</p></div></div>
+            </div>
           </div>
-          <div class="space-y-1">
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:15</div><div><h4 class="font-bold text-gray-800">抵達成田機場<span class="cat-badge cat-transport">交通</span></h4><p class="text-xs text-gray-500 mt-1">NRT T2 入境。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">18:30</div><div><h4 class="font-bold text-gray-800">三之輪飯店辦理入住<span class="cat-badge cat-stay">住宿</span></h4><p class="text-xs text-gray-500 mt-1">Hotel Check-in。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:30</div><div><h4 class="font-bold text-gray-800">淺草寺雷門<span class="cat-badge cat-activity">景點</span></h4><p class="text-xs text-gray-500 mt-1">夜遊淺草。</p></div></div>
+
+          <!-- Day 2 Content -->
+          <div id="content-day-2" class="day-content">
+            <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
+              <h2 class="font-serif-jp text-3xl text-gray-800">和服與光影</h2>
+              <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/25 Wed</p>
+            </div>
+            <div class="space-y-1">
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">09:00</div><div><h4 class="font-bold text-gray-800">淺草江戶和裝工房<span class="cat-badge cat-activity">體驗</span></h4><p class="text-xs text-gray-500 mt-1">和服換裝。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:15</div><div><h4 class="font-bold text-gray-800">歸還和服<span class="cat-badge cat-activity">行程</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:45</div><div><h4 class="font-bold text-gray-800">搭乘計程車前往豐洲<span class="cat-badge cat-transport">交通</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:30</div><div><h4 class="font-bold text-gray-800">teamLab Planets<span class="cat-badge cat-activity">展覽</span></h4><p class="text-xs text-gray-500 mt-1">預約制光影展。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">15:30</div><div><h4 class="font-bold text-gray-800">搭乘計程車前往澀谷<span class="cat-badge cat-transport">交通</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:40</div><div><h4 class="font-bold text-gray-800">Shibuya Sky<span class="cat-badge cat-activity">展望</span></h4><p class="text-xs text-gray-500 mt-1">日落與夜景。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">澀谷晚餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
+            </div>
+          </div>
+
+          <!-- Day 3 Content -->
+          <div id="content-day-3" class="day-content">
+            <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
+              <h2 class="font-serif-jp text-3xl text-gray-800">時尚與潮流</h2>
+              <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/26 Thu</p>
+            </div>
+            <div class="space-y-1">
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:00</div><div><h4 class="font-bold text-gray-800">表參道美髮沙龍 (MAGNOLiA)<span class="cat-badge cat-beauty">美髮</span></h4><p class="text-xs text-gray-500 mt-1">設計師預約。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:00</div><div><h4 class="font-bold text-gray-800">新宿、原宿<span class="cat-badge cat-shopping">購物</span></h4><p class="text-xs text-gray-500 mt-1">逛街行程。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">惠比壽花園廣場<span class="cat-badge cat-activity">夜景</span></h4></div></div>
+            </div>
+          </div>
+
+          <!-- Day 4 Content -->
+          <div id="content-day-4" class="day-content">
+            <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
+              <h2 class="font-serif-jp text-3xl text-gray-800">富士山一日遊</h2>
+              <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/27 Fri</p>
+            </div>
+            <div class="space-y-1">
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">07:50</div><div><h4 class="font-bold text-gray-800">銀座出發<span class="cat-badge cat-transport">交通</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">08:00</div><div><h4 class="font-bold text-gray-800">JR 東京站丸之內南口<span class="cat-badge cat-transport">集合</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:30</div><div><h4 class="font-bold text-gray-800">新倉山淺間公園<span class="cat-badge cat-activity">絕景</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:45</div><div><h4 class="font-bold text-gray-800">日川時計店<span class="cat-badge cat-activity">景點</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:05</div><div><h4 class="font-bold text-gray-800">午餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:35</div><div><h4 class="font-bold text-gray-800">忍野八海<span class="cat-badge cat-activity">景點</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:30</div><div><h4 class="font-bold text-gray-800">Lawson 河口湖町役場前店<span class="cat-badge cat-activity">打卡</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">15:20</div><div><h4 class="font-bold text-gray-800">河口湖大石公園<span class="cat-badge cat-activity">絕景</span></h4><p class="text-xs text-gray-500 mt-1">視季節調整。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">17:30</div><div><h4 class="font-bold text-gray-800">啟程返回<span class="cat-badge cat-transport">交通</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">返回銀座晚餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
+            </div>
+          </div>
+
+          <!-- Day 5 Content -->
+          <div id="content-day-5" class="day-content">
+            <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
+              <h2 class="font-serif-jp text-3xl text-gray-800">最終章：歸途</h2>
+              <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/28 Sat</p>
+            </div>
+            <div class="space-y-1">
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:30</div><div><h4 class="font-bold text-gray-800">東京車站 (BUTTER 美瑛鬆餅)<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:30</div><div><h4 class="font-bold text-gray-800">皇居二重橋<span class="cat-badge cat-activity">景點</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:00</div><div><h4 class="font-bold text-gray-800">上野 Yamashiroya 玩具店<span class="cat-badge cat-shopping">購物</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:20</div><div><h4 class="font-bold text-gray-800">京成上野站 (搭乘 Skyliner)<span class="cat-badge cat-transport">交通</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">17:05</div><div><h4 class="font-bold text-gray-800">抵達成田機場<span class="cat-badge cat-transport">交通</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:55</div><div><h4 class="font-bold text-gray-800">班機起飛<span class="cat-badge cat-transport">交通</span></h4></div></div>
+            </div>
           </div>
         </div>
 
-        <!-- Day 2 Content -->
-        <div id="content-day-2" class="day-content">
-          <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
-            <h2 class="font-serif-jp text-3xl text-gray-800">和服與光影</h2>
-            <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/25 Wed</p>
+        <!-- Map Section -->
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-serif-jp text-2xl text-gray-800 flex items-center gap-2">
+              <i data-lucide="compass" class="text-red-600 w-6 h-6"></i> 實境路線
+            </h3>
+            <button id="reset-map" class="text-[10px] font-bold text-red-600 bg-red-50 px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-widest active:scale-95 transition-all">Reset View</button>
           </div>
-          <div class="space-y-1">
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">09:00</div><div><h4 class="font-bold text-gray-800">淺草江戶和裝工房<span class="cat-badge cat-activity">體驗</span></h4><p class="text-xs text-gray-500 mt-1">和服換裝。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:15</div><div><h4 class="font-bold text-gray-800">歸還和服<span class="cat-badge cat-activity">行程</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:45</div><div><h4 class="font-bold text-gray-800">搭乘計程車前往豐洲<span class="cat-badge cat-transport">交通</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:30</div><div><h4 class="font-bold text-gray-800">teamLab Planets<span class="cat-badge cat-activity">展覽</span></h4><p class="text-xs text-gray-500 mt-1">預約制光影展。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">15:30</div><div><h4 class="font-bold text-gray-800">搭乘計程車前往澀谷<span class="cat-badge cat-transport">交通</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:40</div><div><h4 class="font-bold text-gray-800">Shibuya Sky<span class="cat-badge cat-activity">展望</span></h4><p class="text-xs text-gray-500 mt-1">日落與夜景。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">澀谷晚餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
+          <div class="map-container shadow-2xl">
+            <div id="travel-leaflet-map"></div>
           </div>
+        </section>
+
+        <!-- System Footer -->
+        <div class="flex justify-center">
+          <button id="settings-trigger" class="flex items-center gap-3 bg-white border border-gray-100 shadow-sm px-5 py-2.5 rounded-full active:scale-95 transition-all hover:bg-gray-50 group">
+            <div class="relative">
+               <div class="w-8 h-8 bg-red-50 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
+                  <i data-lucide="settings-2" class="w-4 h-4 text-red-600"></i>
+               </div>
+               <span id="sync-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-white rounded-full bg-gray-400"></span>
+            </div>
+            <div class="text-left pr-2">
+               <h4 class="font-bold text-xs text-gray-800">System</h4>
+               <p id="sync-text" class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">OFFLINE</p>
+            </div>
+          </button>
         </div>
 
-        <!-- Day 3 Content -->
-        <div id="content-day-3" class="day-content">
-          <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
-            <h2 class="font-serif-jp text-3xl text-gray-800">時尚與潮流</h2>
-            <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/26 Thu</p>
-          </div>
-          <div class="space-y-1">
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:00</div><div><h4 class="font-bold text-gray-800">表參道美髮沙龍 (MAGNOLiA)<span class="cat-badge cat-beauty">美髮</span></h4><p class="text-xs text-gray-500 mt-1">設計師預約。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:00</div><div><h4 class="font-bold text-gray-800">新宿、原宿<span class="cat-badge cat-shopping">購物</span></h4><p class="text-xs text-gray-500 mt-1">逛街行程。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">惠比壽花園廣場<span class="cat-badge cat-activity">夜景</span></h4></div></div>
-          </div>
-        </div>
-
-        <!-- Day 4 Content -->
-        <div id="content-day-4" class="day-content">
-          <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
-            <h2 class="font-serif-jp text-3xl text-gray-800">富士山一日遊</h2>
-            <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/27 Fri</p>
-          </div>
-          <div class="space-y-1">
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">07:50</div><div><h4 class="font-bold text-gray-800">銀座出發<span class="cat-badge cat-transport">交通</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">08:00</div><div><h4 class="font-bold text-gray-800">JR 東京站丸之內南口<span class="cat-badge cat-transport">集合</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:30</div><div><h4 class="font-bold text-gray-800">新倉山淺間公園<span class="cat-badge cat-activity">絕景</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:45</div><div><h4 class="font-bold text-gray-800">日川時計店<span class="cat-badge cat-activity">景點</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:05</div><div><h4 class="font-bold text-gray-800">午餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:35</div><div><h4 class="font-bold text-gray-800">忍野八海<span class="cat-badge cat-activity">景點</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:30</div><div><h4 class="font-bold text-gray-800">Lawson 河口湖町役場前店<span class="cat-badge cat-activity">打卡</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">15:20</div><div><h4 class="font-bold text-gray-800">河口湖大石公園<span class="cat-badge cat-activity">絕景</span></h4><p class="text-xs text-gray-500 mt-1">視季節調整。</p></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">17:30</div><div><h4 class="font-bold text-gray-800">啟程返回<span class="cat-badge cat-transport">交通</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">返回銀座晚餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
-          </div>
-        </div>
-
-        <!-- Day 5 Content -->
-        <div id="content-day-5" class="day-content">
-          <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
-            <h2 class="font-serif-jp text-3xl text-gray-800">最終章：歸途</h2>
-            <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/28 Sat</p>
-          </div>
-          <div class="space-y-1">
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:30</div><div><h4 class="font-bold text-gray-800">東京車站 (BUTTER 美瑛鬆餅)<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:30</div><div><h4 class="font-bold text-gray-800">皇居二重橋<span class="cat-badge cat-activity">景點</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:00</div><div><h4 class="font-bold text-gray-800">上野 Yamashiroya 玩具店<span class="cat-badge cat-shopping">購物</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:20</div><div><h4 class="font-bold text-gray-800">京成上野站 (搭乘 Skyliner)<span class="cat-badge cat-transport">交通</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">17:05</div><div><h4 class="font-bold text-gray-800">抵達成田機場<span class="cat-badge cat-transport">交通</span></h4></div></div>
-            <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:55</div><div><h4 class="font-bold text-gray-800">班機起飛<span class="cat-badge cat-transport">交通</span></h4></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Map Section -->
-      <section class="mb-12">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-serif-jp text-2xl text-gray-800 flex items-center gap-2">
-            <i data-lucide="compass" class="text-red-600 w-6 h-6"></i> 實境路線
-          </h3>
-          <button id="reset-map" class="text-[10px] font-bold text-red-600 bg-red-50 px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-widest active:scale-95 transition-all">Reset View</button>
-        </div>
-        <div class="map-container shadow-2xl">
-          <div id="travel-leaflet-map"></div>
-        </div>
-      </section>
-
-      <!-- System Footer -->
-      <div class="flex justify-center pb-32">
-        <button id="settings-trigger" class="flex items-center gap-3 bg-white border border-gray-100 shadow-sm px-5 py-2.5 rounded-full active:scale-95 transition-all hover:bg-gray-50 group">
-          <div class="relative">
-             <div class="w-8 h-8 bg-red-50 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
-                <i data-lucide="settings-2" class="w-4 h-4 text-red-600"></i>
-             </div>
-             <span id="sync-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-white rounded-full bg-gray-400"></span>
-          </div>
-          <div class="text-left pr-2">
-             <h4 class="font-bold text-xs text-gray-800">System</h4>
-             <p id="sync-text" class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">OFFLINE</p>
-          </div>
-        </button>
       </div>
     </div>
   </div>
