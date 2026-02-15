@@ -1,4 +1,5 @@
 
+
 // Application logic for Tokyo Duo BAKA 2026
 
 const DEFAULT_TICKETS = [
@@ -23,17 +24,19 @@ let shopItems = JSON.parse(localStorage.getItem('shop_items')) || [
 const mapNodes = {
   NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
   MINOWA: { lat: 35.729, lng: 139.791, name: "三之輪 (Hotel)", time: "18:30" },
-  ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺", time: "19:30" },
+  ASAKUSA: { lat: 35.714, lng: 139.796, name: "淺草寺/和裝", time: "19:30" },
   TOYOSU: { lat: 35.649, lng: 139.789, name: "teamLab", time: "12:30" },
   SHIBUYA: { lat: 35.658, lng: 139.702, name: "澀谷 Shibuya Sky", time: "16:40" },
-  OMOTESANDO: { lat: 35.666, lng: 139.710, name: "表參道", time: "10:00" },
+  OMOTESANDO: { lat: 35.666, lng: 139.710, name: "表參道 MAGNOLiA", time: "10:00" },
+  HARAJUKU: { lat: 35.671, lng: 139.702, name: "原宿/新宿", time: "14:00" },
   FUJI: { lat: 35.500, lng: 138.760, name: "富士山河口湖", time: "10:30" },
   ARAKURAYAMA: { lat: 35.503, lng: 138.809, name: "新倉山淺間公園", time: "10:30" },
   HIKAWA: { lat: 35.485, lng: 138.804, name: "日川時計店", time: "11:45" },
   OSHINO: { lat: 35.459, lng: 138.832, name: "忍野八海", time: "12:35" },
+  LAWSON: { lat: 35.498, lng: 138.769, name: "Lawson 河口湖", time: "14:30" },
   OISHI: { lat: 35.523, lng: 138.746, name: "大石公園", time: "15:20" },
   TOKYO_ST: { lat: 35.681, lng: 139.767, name: "東京車站", time: "08:00" },
-  UENO: { lat: 35.712, lng: 139.775, name: "上野", time: "14:00" },
+  UENO: { lat: 35.712, lng: 139.775, name: "上野 Yamashiroya", time: "14:00" },
   EBISU: { lat: 35.642, lng: 139.713, name: "惠比壽花園廣場", time: "19:00" },
   GINZA: { lat: 35.672, lng: 139.766, name: "銀座", time: "07:50" },
   PALACE: { lat: 35.681, lng: 139.754, name: "皇居二重橋", time: "12:30" }
@@ -42,11 +45,12 @@ const mapNodes = {
 const dailyItineraryData = {
   1: { points: ["NRT", "MINOWA", "ASAKUSA"] },
   2: { points: ["ASAKUSA", "TOYOSU", "SHIBUYA"] },
-  3: { points: ["OMOTESANDO", "SHIBUYA", "EBISU"] },
-  4: { points: ["GINZA", "TOKYO_ST", "ARAKURAYAMA", "HIKAWA", "OSHINO", "OISHI", "GINZA"] },
+  3: { points: ["OMOTESANDO", "HARAJUKU", "EBISU"] },
+  4: { points: ["GINZA", "TOKYO_ST", "ARAKURAYAMA", "HIKAWA", "OSHINO", "LAWSON", "OISHI", "GINZA"] },
   5: { points: ["TOKYO_ST", "PALACE", "UENO", "NRT"] }
 };
 
+let currentDay = 1;
 let map = null, markersLayer = null;
 
 function saveToLocal() {
@@ -57,21 +61,37 @@ function saveToLocal() {
 function updateSyncStatus(status) {
   const dot = document.getElementById('sync-dot');
   const text = document.getElementById('sync-text');
-  if (!dot || !text) return;
-  dot.className = 'sync-indicator ' + (status === 'online' ? 'status-online' : status === 'syncing' ? 'status-syncing' : 'status-offline');
-  text.innerText = status.toUpperCase();
+  if (text) text.innerText = status.toUpperCase();
+  
+  if (dot) {
+      const baseClasses = "absolute -top-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-white rounded-full transition-colors duration-300";
+      let colorClass = "bg-gray-400"; // default/offline
+      if (status === 'online') colorClass = "bg-green-500";
+      else if (status === 'syncing') colorClass = "bg-red-500 animate-pulse";
+      
+      dot.className = `${baseClasses} ${colorClass}`;
+  }
 }
 
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
+  if (!container) return;
   const toast = document.createElement('div');
-  toast.className = `toast bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl`;
-  const icon = type === 'success' ? 'check-circle-2' : 'info';
-  toast.innerHTML = `<i data-lucide="${icon}" class="w-3 h-3 ${type === 'success' ? 'text-green-400' : 'text-[#FC4B5F]'}"></i> ${message}`;
+  toast.className = `flex items-center gap-3 bg-white/90 backdrop-blur-md border border-gray-100 shadow-2xl px-5 py-3 rounded-2xl transition-all duration-300 transform translate-y-4 opacity-0`;
+  const icon = type === 'success' ? 'check-circle' : 'info';
+  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}"></i> <span class="text-sm font-bold text-gray-800">${message}</span>`;
   container.appendChild(toast);
   // @ts-ignore
   lucide.createIcons();
-  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+  
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-4', 'opacity-0');
+  });
+
+  setTimeout(() => {
+    toast.classList.add('translate-y-4', 'opacity-0');
+    setTimeout(() => toast.remove(), 400);
+  }, 3000);
 }
 
 async function syncToCloud(item) {
@@ -86,7 +106,6 @@ async function syncToCloud(item) {
     });
     setTimeout(() => {
       updateSyncStatus('online');
-      showToast(item.status === 'DELETED' ? '項目已從雲端移除' : '已同步至雲端', 'success');
     }, 500);
   } catch (err) {
     updateSyncStatus('offline');
@@ -101,7 +120,6 @@ async function loadFromCloud() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const cloudData = await response.json();
     if (Array.isArray(cloudData)) {
-      // Basic merge logic
       cloudData.forEach(cloudItem => {
         const id = cloudItem.id || cloudItem.itemId;
         if (!id) return;
@@ -118,37 +136,50 @@ async function loadFromCloud() {
 }
 
 function initMap() {
-  if (map) return;
   const mapEl = document.getElementById('travel-leaflet-map');
   if (!mapEl) return;
+  if (map) {
+    map.invalidateSize();
+    return;
+  }
+  
   // @ts-ignore
   map = L.map('travel-leaflet-map', { zoomControl: false, scrollWheelZoom: false }).setView([35.681, 139.767], 12);
   // @ts-ignore
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; CartoDB'
+  }).addTo(map);
   // @ts-ignore
   markersLayer = L.layerGroup().addTo(map);
-  renderMap(1);
+  
+  renderMap(currentDay);
 }
 
 function renderMap(day) {
-  if (!markersLayer) return;
+  if (!markersLayer || !map) return;
   markersLayer.clearLayers();
   const points = dailyItineraryData[day].points;
   const latlngs = [];
   points.forEach((key, i) => {
     const node = mapNodes[key];
+    if (!node) return;
     latlngs.push([node.lat, node.lng]);
     // @ts-ignore
     L.marker([node.lat, node.lng], { 
       // @ts-ignore
-      icon: L.divIcon({ className: 'bg-transparent', html: `<div class="marker-pin" data-index="${i+1}"></div><div class="marker-label">${node.name}</div>`, iconSize: [30, 42], iconAnchor: [15, 42] })
-    }).addTo(markersLayer).bindPopup(`<b>${node.name}</b><br>${node.time}`);
+      icon: L.divIcon({ 
+        className: 'bg-transparent', 
+        html: `<div class="marker-pin" data-index="${i+1}"></div>`, 
+        iconSize: [30, 42], iconAnchor: [15, 42] 
+      })
+    }).addTo(markersLayer).bindPopup(`<div class="p-2 font-bold text-gray-800">${node.name}<br><span class="text-red-500 text-xs">${node.time}</span></div>`);
   });
-  if (latlngs.length > 1) {
+  
+  if (latlngs.length > 0) {
     // @ts-ignore
-    L.polyline(latlngs, { color: '#FC4B5F', weight: 4, dashArray: '10, 10', opacity: 0.5 }).addTo(markersLayer);
+    L.polyline(latlngs, { color: '#d9333f', weight: 4, dashArray: '8, 12', opacity: 0.5 }).addTo(markersLayer);
     // @ts-ignore
-    map.fitBounds(L.latLngBounds(latlngs), { padding: [50, 50] });
+    map.fitBounds(L.latLngBounds(latlngs), { padding: [60, 60], animate: true });
   }
 }
 
@@ -157,19 +188,23 @@ function renderTickets() {
   const purchased = document.getElementById('wallet-purchased');
   if (!pending || !purchased) return;
   pending.innerHTML = ''; purchased.innerHTML = '';
+  
   tickets.forEach(t => {
     const isPurchased = t.status === '已購買';
     const html = `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex overflow-hidden relative">
-        <div class="w-16 flex flex-col items-center justify-center bg-gray-50/50 py-4"><i data-lucide="${t.type === '交通' ? 'train' : 'ticket'}" class="w-5 h-5 text-[#FC4B5F]/30"></i></div>
+      <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 flex overflow-hidden relative group active:scale-[0.98] transition-all">
+        <div class="w-16 flex flex-col items-center justify-center bg-gray-50/50 py-4"><i data-lucide="${t.type === '交通' ? 'train-front' : 'ticket'}" class="w-5 h-5 text-red-600/30"></i></div>
         <div class="flex-1 p-5 pr-16">
-          <h4 class="font-bold text-gray-800 ${isPurchased ? 'line-through text-gray-400' : ''}">${t.name}</h4>
-          <p class="text-[10px] text-gray-400 mt-1">${t.location}</p>
+          <h4 class="font-bold text-gray-800 ${isPurchased ? 'line-through text-gray-300' : ''}">${t.name}</h4>
+          <p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-widest">${t.location}</p>
         </div>
-        <button id="toggle-t-${t.id}" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 ${isPurchased ? 'text-[#FC4B5F]' : 'text-gray-200'}"><i data-lucide="check-circle" class="w-7 h-7"></i></button>
+        <button id="toggle-t-${t.id}" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 ${isPurchased ? 'text-green-500' : 'text-gray-200'}">
+          <i data-lucide="${isPurchased ? 'check-circle' : 'circle'}" class="w-7 h-7"></i>
+        </button>
       </div>`;
     if (isPurchased) purchased.innerHTML += html; else pending.innerHTML += html;
   });
+  
   // @ts-ignore
   lucide.createIcons();
   
@@ -179,6 +214,7 @@ function renderTickets() {
       saveToLocal();
       renderTickets();
       syncToCloud(t);
+      showToast(t.status === '已購買' ? '已標記為完成' : '已取消完成狀態', 'success');
     });
   });
 }
@@ -190,12 +226,14 @@ function renderShop() {
   shopItems.forEach(item => {
     const isDone = item.status === '已購買';
     container.innerHTML += `
-      <div class="bg-white p-4 rounded-xl flex items-center justify-between shadow-sm border border-gray-100">
-        <div class="flex items-center gap-3">
-          <button id="toggle-s-${item.id}" class="${isDone ? 'text-green-500' : 'text-gray-300'}"><i data-lucide="${isDone ? 'check-circle-2' : 'circle'}" class="w-5 h-5"></i></button>
-          <span class="${isDone ? 'line-through text-gray-400' : ''} font-medium text-sm">${item.name}</span>
+      <div class="bg-white p-5 rounded-[20px] flex items-center justify-between shadow-sm border border-gray-100 active:scale-[0.98] transition-all">
+        <div class="flex items-center gap-4">
+          <button id="toggle-s-${item.id}" class="${isDone ? 'text-green-500' : 'text-gray-300'}">
+            <i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-6 h-6"></i>
+          </button>
+          <span class="${isDone ? 'line-through text-gray-300' : ''} font-bold text-sm text-gray-800">${item.name}</span>
         </div>
-        <button id="del-s-${item.id}" class="text-gray-300 hover:text-red-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button id="del-s-${item.id}" class="text-gray-200 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
       </div>`;
   });
   // @ts-ignore
@@ -213,6 +251,7 @@ function renderShop() {
       shopItems = shopItems.filter(x => x.id !== item.id);
       saveToLocal();
       renderShop();
+      showToast('項目已移除', 'info');
     });
   });
 }
@@ -222,11 +261,15 @@ function renderAll() {
   renderShop();
 }
 
-// Initialization and Event Listeners
-window.addEventListener('DOMContentLoaded', () => {
+function initializeApp() {
   // @ts-ignore
   lucide.createIcons();
-  initMap();
+  
+  // Initial map call with timeout to ensure DOM is ready
+  setTimeout(() => {
+    initMap();
+  }, 500);
+
   renderAll();
   loadFromCloud();
 
@@ -235,10 +278,9 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', () => {
     const nav = document.getElementById('floating-nav');
     if (!nav) return;
-    
     const currentScrollY = window.scrollY;
     // Hide when scrolling down, show when scrolling up
-    if (currentScrollY > lastScrollY && currentScrollY > 100) {
+    if (currentScrollY > lastScrollY && currentScrollY > 120) {
       nav.classList.add('nav-hidden');
     } else {
       nav.classList.remove('nav-hidden');
@@ -246,62 +288,89 @@ window.addEventListener('DOMContentLoaded', () => {
     lastScrollY = currentScrollY;
   }, { passive: true });
 
-  // Navigation
+  // Navigation Click Handlers
   ['itinerary', 'wallet', 'shopping'].forEach(view => {
-    document.getElementById(`nav-${view}`)?.addEventListener('click', () => {
+    const btn = document.getElementById(`nav-${view}`);
+    btn?.addEventListener('click', (e) => {
+      e.preventDefault();
       document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(`view-${view}`).classList.add('active');
-      document.getElementById(`nav-${view}`).classList.add('active');
-      if (view === 'itinerary') setTimeout(initMap, 100);
+      
+      const targetView = document.getElementById(`view-${view}`);
+      if (targetView) targetView.classList.add('active');
+      btn.classList.add('active');
+      
+      if (view === 'itinerary') {
+        setTimeout(initMap, 100);
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
-  // Day Switching
+  // Day Switching Handlers
   [1, 2, 3, 4, 5].forEach(day => {
-    document.getElementById(`btn-day-${day}`)?.addEventListener('click', () => {
-      document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-day-${day}`).classList.add('active');
+    const btn = document.getElementById(`btn-day-${day}`);
+    btn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentDay = day;
+      document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
       document.querySelectorAll('.day-content').forEach(content => content.classList.remove('active'));
-      document.getElementById(`content-day-${day}`).classList.add('active');
+      const targetContent = document.getElementById(`content-day-${day}`);
+      if (targetContent) targetContent.classList.add('active');
+      
       renderMap(day);
     });
   });
 
-  // Settings
+  // Settings Modal Handlers
   document.getElementById('settings-trigger')?.addEventListener('click', () => {
-    document.getElementById('settings-modal').classList.add('active');
-    (document.getElementById('gas-url-input') as HTMLInputElement).value = GAS_URL;
+    document.getElementById('settings-modal')?.classList.add('active');
+    const input = document.getElementById('gas-url-input') as HTMLInputElement;
+    if (input) input.value = GAS_URL;
   });
 
   document.getElementById('close-settings-btn')?.addEventListener('click', () => {
-    document.getElementById('settings-modal').classList.remove('active');
+    document.getElementById('settings-modal')?.classList.remove('active');
   });
 
   document.getElementById('save-settings-btn')?.addEventListener('click', () => {
-    GAS_URL = (document.getElementById('gas-url-input') as HTMLInputElement).value || DEFAULT_GAS_URL;
+    const input = document.getElementById('gas-url-input') as HTMLInputElement;
+    GAS_URL = input.value || DEFAULT_GAS_URL;
     localStorage.setItem('gas_url', GAS_URL);
-    document.getElementById('settings-modal').classList.remove('active');
+    document.getElementById('settings-modal')?.classList.remove('active');
     loadFromCloud();
+    showToast('設定已儲存', 'success');
   });
 
-  document.getElementById('manual-sync-btn')?.addEventListener('click', loadFromCloud);
+  document.getElementById('manual-sync-btn')?.addEventListener('click', () => {
+    loadFromCloud();
+    showToast('同步中...', 'info');
+  });
 
-  // Shopping
+  // Shopping Add Handler
   document.getElementById('add-shop-btn')?.addEventListener('click', () => {
     const input = document.getElementById('shop-input') as HTMLInputElement;
-    if (!input.value) return;
-    const newItem = { id: 's' + Date.now(), name: input.value, status: '未購買' };
+    if (!input.value.trim()) return;
+    const newItem = { id: 's' + Date.now(), name: input.value.trim(), status: '未購買' };
     shopItems.push(newItem);
     input.value = '';
     saveToLocal();
     renderShop();
     syncToCloud(newItem);
+    showToast('已新增至清單', 'success');
   });
 
-  // Map Reset
+  // Map Reset View
   document.getElementById('reset-map')?.addEventListener('click', () => {
-    renderMap(1);
+    renderMap(currentDay);
   });
-});
+}
+
+// Robust Readiness Check
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
