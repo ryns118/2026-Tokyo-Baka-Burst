@@ -26,6 +26,7 @@ const mapNodes = {
   SHIBUYA: { lat: 35.658, lng: 139.702, name: "澀谷 Shibuya Sky", time: "16:40" },
   OMOTESANDO: { lat: 35.666, lng: 139.710, name: "表參道 MAGNOLiA", time: "10:00" },
   HARAJUKU: { lat: 35.671, lng: 139.702, name: "原宿/新宿", time: "14:00" },
+  EBISU: { lat: 35.642, lng: 139.713, name: "惠比壽 (燒肉/夜景)", time: "18:00" },
   FUJI: { lat: 35.500, lng: 138.760, name: "富士山河口湖", time: "10:30" },
   ARAKURAYAMA: { lat: 35.503, lng: 138.809, name: "新倉山淺間公園", time: "10:30" },
   HIKAWA: { lat: 35.485, lng: 138.804, name: "日川時計店", time: "11:45" },
@@ -34,8 +35,7 @@ const mapNodes = {
   OISHI: { lat: 35.523, lng: 138.746, name: "大石公園", time: "15:20" },
   TOKYO_ST: { lat: 35.681, lng: 139.767, name: "東京車站", time: "08:00" },
   UENO: { lat: 35.712, lng: 139.775, name: "上野 Yamashiroya", time: "14:00" },
-  EBISU: { lat: 35.642, lng: 139.713, name: "惠比壽花園廣場", time: "19:00" },
-  GINZA: { lat: 35.672, lng: 139.766, name: "銀座", time: "07:50" },
+  GINZA: { lat: 35.672, lng: 139.766, name: "銀座", time: "19:00" },
   PALACE: { lat: 35.681, lng: 139.754, name: "皇居二重橋", time: "12:30" }
 };
 
@@ -43,7 +43,7 @@ const dailyItineraryData = {
   1: { points: ["NRT", "MINOWA", "ASAKUSA"] },
   2: { points: ["ASAKUSA", "TOYOSU", "SHIBUYA"] },
   3: { points: ["OMOTESANDO", "HARAJUKU", "EBISU"] },
-  4: { points: ["GINZA", "TOKYO_ST", "ARAKURAYAMA", "HIKAWA", "OSHINO", "LAWSON", "OISHI", "GINZA"] },
+  4: { points: ["TOKYO_ST", "ARAKURAYAMA", "HIKAWA", "OSHINO", "LAWSON", "OISHI", "GINZA"] },
   5: { points: ["TOKYO_ST", "PALACE", "UENO", "NRT"] }
 };
 
@@ -632,6 +632,34 @@ function initializeApp() {
       setTimeout(() => {
          if (map) map.invalidateSize();
       }, 400);
+
+      // Scroll 'Real-time Route' header to top with padding
+      const sheet = document.getElementById('itinerary-content-sheet');
+      const header = document.getElementById('map-header');
+      
+      if (sheet && header) {
+          // Function to perform the scrolling action
+          const doScroll = () => {
+             const headerRect = header.getBoundingClientRect();
+             const sheetRect = sheet.getBoundingClientRect();
+             // Current Scroll Top + (Relative Top of Header) - Padding
+             const currentOffset = headerRect.top - sheetRect.top;
+             const targetScrollTop = sheet.scrollTop + currentOffset - 16;
+             
+             sheet.scrollTo({
+                 top: targetScrollTop,
+                 behavior: 'smooth'
+             });
+          };
+
+          // Execute after a short delay to allow layout to start expanding
+          // This helps if the map is near the bottom and the scroll height needs to grow
+          setTimeout(doScroll, 100);
+          
+          // Execute again near the end of transition to ensure full visibility if clamped previously
+          setTimeout(doScroll, 400);
+      }
+
     } else {
       mapWrapper.classList.add('collapsed');
       mapOverlay.style.opacity = '1';

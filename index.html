@@ -109,20 +109,20 @@
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">12:30</div><div><h4 class="font-bold text-gray-800">teamLab Planets<span class="cat-badge cat-activity">展覽</span></h4><p class="text-xs text-gray-500 mt-1">預約制光影展。</p></div></div>
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">15:30</div><div><h4 class="font-bold text-gray-800">搭乘計程車前往澀谷<span class="cat-badge cat-transport">交通</span></h4></div></div>
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">16:40</div><div><h4 class="font-bold text-gray-800">Shibuya Sky<span class="cat-badge cat-activity">展望</span></h4><p class="text-xs text-gray-500 mt-1">日落與夜景。</p></div></div>
-              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">澀谷晚餐<span class="cat-badge cat-restaurant">美食</span></h4></div></div>
             </div>
           </div>
 
           <!-- Day 3 Content -->
           <div id="content-day-3" class="day-content">
             <div class="mb-8 flex items-baseline justify-between border-b border-gray-100 pb-4">
-              <h2 class="font-serif-jp text-3xl text-gray-800">時尚與潮流</h2>
+              <h2 class="font-serif-jp text-3xl text-gray-800">時尚與美食</h2>
               <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/26 Thu</p>
             </div>
             <div class="space-y-1">
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:00</div><div><h4 class="font-bold text-gray-800">表參道美髮沙龍 (MAGNOLiA)<span class="cat-badge cat-beauty">美髮</span></h4><p class="text-xs text-gray-500 mt-1">設計師預約。</p></div></div>
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">14:00</div><div><h4 class="font-bold text-gray-800">新宿、原宿<span class="cat-badge cat-shopping">購物</span></h4><p class="text-xs text-gray-500 mt-1">逛街行程。</p></div></div>
-              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">19:00</div><div><h4 class="font-bold text-gray-800">惠比壽花園廣場<span class="cat-badge cat-activity">夜景</span></h4></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">18:00</div><div><h4 class="font-bold text-gray-800">燒肉 Ushimitsu 惠比壽本店<span class="cat-badge cat-restaurant">美食</span></h4><p class="text-xs text-gray-500 mt-1">和牛燒肉饗宴。</p></div></div>
+              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">20:30</div><div><h4 class="font-bold text-gray-800">惠比壽花園廣場<span class="cat-badge cat-activity">夜景</span></h4><p class="text-xs text-gray-500 mt-1">浪漫夜景。</p></div></div>
             </div>
           </div>
 
@@ -133,7 +133,6 @@
               <p class="text-xs font-bold text-red-600 tracking-widest bg-red-50 px-3 py-1 rounded-full uppercase">2/27 Fri</p>
             </div>
             <div class="space-y-1">
-              <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">07:50</div><div><h4 class="font-bold text-gray-800">銀座出發<span class="cat-badge cat-transport">交通</span></h4></div></div>
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">08:00</div><div><h4 class="font-bold text-gray-800">JR 東京站丸之內南口<span class="cat-badge cat-transport">集合</span></h4></div></div>
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">10:30</div><div><h4 class="font-bold text-gray-800">新倉山淺間公園<span class="cat-badge cat-activity">絕景</span></h4></div></div>
               <div class="schedule-row"><div class="text-sm font-black text-red-600 mt-1">11:45</div><div><h4 class="font-bold text-gray-800">日川時計店<span class="cat-badge cat-activity">景點</span></h4></div></div>
@@ -165,7 +164,7 @@
 
         <!-- Map Section -->
         <section class="mb-12">
-          <div class="flex items-center justify-between mb-6">
+          <div id="map-header" class="flex items-center justify-between mb-6">
             <h3 class="font-serif-jp text-2xl text-gray-800 flex items-center gap-2">
               <i data-lucide="compass" class="text-red-600 w-6 h-6"></i> 實境路線
             </h3>
@@ -175,10 +174,11 @@
              <div id="travel-leaflet-map"></div>
              
              <!-- Show Map Button (Visible when collapsed) -->
-             <div id="map-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-[2px] z-[401] flex items-center justify-center cursor-pointer hover:bg-gray-50/90 transition-colors">
-                <button class="flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 font-bold text-xs text-gray-700 uppercase tracking-widest group">
-                  <i data-lucide="map" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i> 顯示地圖
-                </button>
+             <div id="map-overlay" class="absolute inset-0 bg-[#FAFAFA] z-[401] flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-2 text-gray-400">
+                  <i data-lucide="map" class="w-5 h-5"></i>
+                  <span class="text-xs font-bold tracking-widest uppercase">點擊展開地圖</span>
+                </div>
              </div>
 
              <!-- Controls (Visible when expanded) -->
