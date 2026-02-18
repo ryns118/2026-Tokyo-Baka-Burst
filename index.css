@@ -39,7 +39,7 @@ body {
 
 .nav-floating {
   position: fixed;
-  bottom: 2rem;
+  bottom: 16px; /* Updated from 2rem (32px) to 16px as requested */
   left: 50%;
   transform: translateX(-50%);
   width: 92%;
