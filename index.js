@@ -611,8 +611,46 @@ function initializeApp() {
     showToast('已新增至清單', 'success');
   });
 
-  document.getElementById('reset-map')?.addEventListener('click', () => {
-    renderMap(currentDay);
+  // Map Logic
+  const mapWrapper = document.getElementById('map-wrapper');
+  const mapOverlay = document.getElementById('map-overlay');
+  const mapControls = document.getElementById('map-controls');
+  const minimizeBtn = document.getElementById('minimize-map-btn');
+  const resetBtn = document.getElementById('reset-map-btn');
+
+  function toggleMap(expand) {
+    if (!mapWrapper || !mapOverlay || !mapControls) return;
+    
+    if (expand) {
+      mapWrapper.classList.remove('collapsed');
+      mapOverlay.style.opacity = '0';
+      mapOverlay.style.pointerEvents = 'none';
+      mapControls.style.opacity = '1';
+      mapControls.style.pointerEvents = 'auto';
+      
+      // Delay invalidating size until transition finishes
+      setTimeout(() => {
+         if (map) map.invalidateSize();
+      }, 400);
+    } else {
+      mapWrapper.classList.add('collapsed');
+      mapOverlay.style.opacity = '1';
+      mapOverlay.style.pointerEvents = 'auto';
+      mapControls.style.opacity = '0';
+      mapControls.style.pointerEvents = 'none';
+    }
+  }
+
+  mapOverlay?.addEventListener('click', () => toggleMap(true));
+  
+  minimizeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMap(false);
+  });
+  
+  resetBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      renderMap(currentDay);
   });
 }
 

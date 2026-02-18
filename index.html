@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>2026 東京冬日 | Duo BAKA</title>
   
   <link rel="apple-touch-icon" sizes="180x180" href="favicon 180*180.png">
@@ -39,9 +39,9 @@
 }
 </script>
 </head>
-<body class="min-h-screen bg-pattern">
+<body class="min-h-[100dvh] bg-pattern overscroll-none">
 
-  <div id="toast-container" class="fixed top-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-[3000]"></div>
+  <div id="toast-container" class="fixed top-[calc(2rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-[3000]"></div>
 
   <nav id="floating-nav" class="nav-floating">
     <button id="nav-itinerary" class="nav-btn active">
@@ -59,16 +59,17 @@
   </nav>
 
   <!-- View 1: Itinerary -->
-  <div id="view-itinerary" class="view-content active min-h-screen bg-[var(--jp-red)]">
+  <div id="view-itinerary" class="view-content active min-h-[100dvh] bg-[var(--jp-red)]">
     <!-- Hero (Fixed) -->
-    <div class="fixed top-0 left-0 w-full h-[20vh] flex items-center justify-center overflow-hidden z-0 bg-[var(--jp-red)]">
-      <div class="relative z-10 text-center px-4">
-        <h1 class="font-serif-jp text-4xl md:text-6xl text-white drop-shadow-sm tracking-tight whitespace-nowrap">東京 Duo BAKA</h1>
+    <div class="fixed top-0 left-0 w-full h-[20dvh] flex flex-col items-center justify-center overflow-hidden z-0 bg-[var(--jp-red)] pt-[env(safe-area-inset-top)]">
+      <div class="relative z-10 text-center px-4 w-full">
+        <!-- Subtitle removed, size adjusted for mobile -->
+        <h1 class="font-serif-jp text-3xl md:text-5xl text-white drop-shadow-sm tracking-tight whitespace-nowrap">東京 Duo BAKA</h1>
       </div>
     </div>
 
     <!-- Info Bar / Content Sheet -->
-    <div id="itinerary-content-sheet" class="fixed bottom-0 left-0 w-full h-[80vh] z-10 bg-[var(--jp-washi)] bg-pattern rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] overflow-y-auto pb-32">
+    <div id="itinerary-content-sheet" class="fixed bottom-0 left-0 w-full h-[80dvh] z-10 bg-[var(--jp-washi)] bg-pattern rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] overflow-y-auto pb-[calc(80px+env(safe-area-inset-bottom))]">
       <div class="max-w-4xl mx-auto px-4 pt-8">
         
         <!-- Day Tabs -->
@@ -168,10 +169,27 @@
             <h3 class="font-serif-jp text-2xl text-gray-800 flex items-center gap-2">
               <i data-lucide="compass" class="text-red-600 w-6 h-6"></i> 實境路線
             </h3>
-            <button id="reset-map" class="text-[10px] font-bold text-red-600 bg-red-50 px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-widest active:scale-95 transition-all">Reset View</button>
           </div>
-          <div class="map-container shadow-2xl">
-            <div id="travel-leaflet-map"></div>
+          
+          <div id="map-wrapper" class="map-container collapsed">
+             <div id="travel-leaflet-map"></div>
+             
+             <!-- Show Map Button (Visible when collapsed) -->
+             <div id="map-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-[2px] z-[401] flex items-center justify-center cursor-pointer hover:bg-gray-50/90 transition-colors">
+                <button class="flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 font-bold text-xs text-gray-700 uppercase tracking-widest group">
+                  <i data-lucide="map" class="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform"></i> 顯示地圖
+                </button>
+             </div>
+
+             <!-- Controls (Visible when expanded) -->
+             <div id="map-controls" class="absolute top-4 right-4 z-[402] flex gap-2 opacity-0 pointer-events-none transition-opacity duration-300">
+                <button id="reset-map-btn" class="bg-white p-2.5 rounded-xl shadow-md border border-gray-100 text-gray-600 active:scale-95 transition-all">
+                  <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                </button>
+                <button id="minimize-map-btn" class="bg-white p-2.5 rounded-xl shadow-md border border-gray-100 text-gray-600 active:scale-95 transition-all">
+                  <i data-lucide="minimize-2" class="w-5 h-5"></i>
+                </button>
+             </div>
           </div>
         </section>
 
@@ -196,8 +214,8 @@
   </div>
 
   <!-- View 2: Wallet -->
-  <div id="view-wallet" class="view-content max-w-2xl mx-auto px-4 pt-10 pb-32">
-    <div class="mb-12 text-center">
+  <div id="view-wallet" class="view-content max-w-2xl mx-auto px-4 pt-10 pb-[calc(100px+env(safe-area-inset-bottom))]">
+    <div class="mb-12 text-center pt-[calc(2rem+env(safe-area-inset-top))]">
       <div class="w-16 h-16 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
         <i data-lucide="wallet" class="text-red-600 w-8 h-8"></i>
       </div>
@@ -222,8 +240,8 @@
   </div>
 
   <!-- View 3: Shopping -->
-  <div id="view-shopping" class="view-content max-w-2xl mx-auto px-4 pt-10 pb-32">
-    <div class="mb-12 text-center">
+  <div id="view-shopping" class="view-content max-w-2xl mx-auto px-4 pt-10 pb-[calc(100px+env(safe-area-inset-bottom))]">
+    <div class="mb-12 text-center pt-[calc(2rem+env(safe-area-inset-top))]">
       <div class="w-16 h-16 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
         <i data-lucide="shopping-bag" class="text-red-600 w-8 h-8"></i>
       </div>
