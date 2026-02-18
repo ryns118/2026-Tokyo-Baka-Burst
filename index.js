@@ -641,6 +641,9 @@ function initializeApp() {
     }
   }
 
+  // Force default state on load
+  toggleMap(false);
+
   mapOverlay?.addEventListener('click', () => toggleMap(true));
   
   minimizeBtn?.addEventListener('click', (e) => {
