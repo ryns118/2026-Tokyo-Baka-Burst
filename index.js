@@ -2,35 +2,21 @@
 
 // Application logic for Tokyo Duo BAKA 2026
 
-const DEFAULT_TICKETS = [
-  { id: 't1', type: '交通', name: 'Skyliner 去程 (NRT → 市區)', location: 'Klook', status: '待準備' },
-  { id: 't7', type: '交通', name: 'Skyliner 回程 (市區 → NRT)', location: 'Klook', status: '待準備' },
-  { id: 't2', type: '票券', name: 'teamLab Planets (2/25)', location: '官網預約', status: '待準備', link: 'https://teamlabplanets.dmm.com/zh_tw/mytickets/0c81f69903f1050aa7' },
-  { id: 't3', type: '票券', name: 'Shibuya Sky (2/25)', location: '官網預約', status: '待準備' },
-  { id: 't4', type: '美髮', name: 'MAGNOLiA 沙龍預約 (2/26)', location: 'Hot Pepper Beauty', status: '待準備' },
-  { id: 't5', type: '行程', name: '富士山一日遊憑證 (2/27)', location: 'KKday/Klook', status: '待準備' },
-  { id: 't6', type: '體驗', name: '江戶和裝工房和服 (2/25)', location: '官網預約', status: '待準備' }
-];
+// 1. Remove hardcoded default data to ensure list is empty until fetched from Google Sheet
+const DEFAULT_TICKETS = [];
 
+// HARDCODED URL as requested
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwj98SSWaJsumdB2C0cTuOt0bgQM1j1t8pOUEbOJYGyTwFYqV6koO7PrYIJEZQSeQ3CCQ/exec';
 
 let GAS_URL = localStorage.getItem('gas_url') || DEFAULT_GAS_URL;
 
-// Initialize tickets by merging defaults with local storage to ensure new tickets appear
-let storedTickets = JSON.parse(localStorage.getItem('tickets_data') || 'null');
-let tickets = [...DEFAULT_TICKETS];
-if (storedTickets) {
-  tickets = tickets.map(t => {
-    const found = storedTickets.find(st => st.id === t.id);
-    if (found) return { ...t, status: found.status };
-    return t;
-  });
-}
+// Initialize variables
+let tickets = [];
+let shopItems = [];
 
-let shopItems = JSON.parse(localStorage.getItem('shop_items') || 'null') || [
-  { id: 's1', name: 'ADDICTION 腮紅', status: '未購買' },
-  { id: 's2', name: 'Uniqlo C 系列外套', status: '未購買' }
-];
+// Diagnostic counters
+let loadRetryCount = 0;
+const MAX_RETRIES = 5;
 
 const mapNodes = {
   NRT: { lat: 35.776, lng: 140.318, name: "成田機場", time: "16:15" },
@@ -89,8 +75,9 @@ function showToast(message, type = 'info') {
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = `flex items-center gap-3 bg-white/90 backdrop-blur-md border border-gray-100 shadow-2xl px-5 py-3 rounded-2xl transition-all duration-300 transform translate-y-4 opacity-0`;
-  const icon = type === 'success' ? 'check-circle' : 'info';
-  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${type === 'success' ? 'text-green-500' : 'text-red-500'}"></i> <span class="text-sm font-bold text-gray-800">${message}</span>`;
+  const icon = type === 'success' ? 'check-circle' : (type === 'error' ? 'alert-circle' : 'info');
+  const color = type === 'success' ? 'text-green-500' : (type === 'error' ? 'text-red-500' : 'text-blue-500');
+  toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 ${color}"></i> <span class="text-sm font-bold text-gray-800">${message}</span>`;
   container.appendChild(toast);
   
   if (window.lucide) window.lucide.createIcons();
@@ -102,7 +89,7 @@ function showToast(message, type = 'info') {
   setTimeout(() => {
     toast.classList.add('translate-y-4', 'opacity-0');
     setTimeout(() => toast.remove(), 400);
-  }, 3000);
+  }, 5000); 
 }
 
 async function syncToCloud(item) {
@@ -115,16 +102,45 @@ async function syncToCloud(item) {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(item)
     });
-    // Optimistic success visual - but we rely on next poll for full sync
-    setTimeout(() => {
-      if (document.getElementById('sync-text').innerText === 'SYNCING') {
-         updateSyncStatus('online');
-      }
-    }, 800);
+    
+    console.log("Write success, queueing rapid reload...");
+    setTimeout(() => loadFromCloud(true), 500);
+    
   } catch (err) {
     console.error('Sync failed:', err);
     updateSyncStatus('offline');
   }
+}
+
+function findArrayInObject(obj) {
+  if (!obj) return null;
+  if (Array.isArray(obj)) return obj;
+  const keys = ['data', 'items', 'result', 'values', 'records'];
+  for (const key of keys) {
+    if (Array.isArray(obj[key])) return obj[key];
+  }
+  if (typeof obj === 'object') {
+    for (const key in obj) {
+      if (Array.isArray(obj[key])) return obj[key];
+    }
+  }
+  return null;
+}
+
+// Robust property getter with Chinese header support
+function safeGet(obj, keys) {
+  if (!obj) return null;
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
+  }
+  const objKeys = Object.keys(obj);
+  for (const targetKey of keys) {
+    const foundKey = objKeys.find(k => k.toLowerCase() === targetKey.toLowerCase());
+    if (foundKey && obj[foundKey] !== undefined && obj[foundKey] !== null && obj[foundKey] !== '') {
+      return obj[foundKey];
+    }
+  }
+  return null;
 }
 
 async function loadFromCloud(isBackground = false) {
@@ -133,85 +149,195 @@ async function loadFromCloud(isBackground = false) {
   if (!isBackground) updateSyncStatus('syncing');
 
   try {
-    // Robust Cache Busting: Add a timestamp parameter that is guaranteed to be unique
     const separator = GAS_URL.includes('?') ? '&' : '?';
-    const noCacheUrl = `${GAS_URL}${separator}_nocache=${Date.now()}`;
+    const noCacheUrl = `${GAS_URL}${separator}t=${Date.now()}&r=${Math.floor(Math.random() * 1000)}`;
     
-    // Use no-store to tell browser not to cache
-    const response = await fetch(noCacheUrl, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!isBackground) console.log(`Fetching: ${noCacheUrl}`);
+    const response = await fetch(noCacheUrl);
     
-    const cloudData = await response.json();
+    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
     
-    // Debug Log: Check the console to see exactly what comes from Google Sheets
-    console.log("☁️ [Cloud Data]", cloudData);
-
-    let hasChanges = false;
-
-    if (Array.isArray(cloudData)) {
-      cloudData.forEach(cloudItem => {
-        const id = cloudItem.id || cloudItem.itemId;
-        if (!id) return;
-        
-        // 1. Handle Tickets
-        // Use loose equality (==) for ID matching to handle number vs string differences
-        const tIdx = tickets.findIndex((t) => t.id == id);
-        if (tIdx !== -1) {
-          if (tickets[tIdx].status !== cloudItem.status) {
-            console.log(`Update Ticket ${id}: ${tickets[tIdx].status} -> ${cloudItem.status}`);
-            tickets[tIdx].status = cloudItem.status;
-            hasChanges = true;
-          }
-          return; 
-        }
-
-        // 2. Handle Shop Items
-        if (String(id).startsWith('s')) {
-          const sIdx = shopItems.findIndex((s) => s.id == id);
-          
-          if (cloudItem.status === 'DELETED') {
-            if (sIdx !== -1) {
-              shopItems.splice(sIdx, 1);
-              hasChanges = true;
-            }
-          } else {
-            if (sIdx !== -1) {
-              // Update existing
-              if (shopItems[sIdx].status !== cloudItem.status || (cloudItem.name && shopItems[sIdx].name !== cloudItem.name)) {
-                shopItems[sIdx].status = cloudItem.status;
-                if (cloudItem.name) shopItems[sIdx].name = cloudItem.name;
-                hasChanges = true;
-              }
-            } else {
-              // Add new item from cloud
-              shopItems.push({
-                id: id,
-                name: cloudItem.name || '未命名商品',
-                status: cloudItem.status
-              });
-              hasChanges = true;
-            }
-          }
-        }
-      });
-      
-      if (hasChanges) {
-        saveToLocal();
-        renderAll();
-        if (isBackground) console.log('Synced updated data from cloud');
-      }
-      
-      updateSyncStatus('online');
-      
-      // Force toast on manual load (non-background), even if no changes detected, 
-      // so user knows the system is working.
-      if (!isBackground) {
-        showToast('雲端已同步', 'success');
-      }
+    const textData = await response.text();
+    
+    if (textData.trim().startsWith('<')) {
+      throw new Error('Endpoint returned HTML. Check permissions.');
     }
+
+    let cloudData;
+    try {
+        cloudData = JSON.parse(textData);
+    } catch (e) {
+        throw new Error(`JSON Parse Error: ${textData.substring(0, 30)}...`);
+    }
+
+    if (!isBackground) console.log("☁️ [Raw Cloud Data]", cloudData);
+
+    let targetArray = findArrayInObject(cloudData);
+
+    if (!targetArray) {
+        if (cloudData.status === 'error') {
+            throw new Error(cloudData.message || 'Script Error');
+        }
+        throw new Error('資料格式不符 (無陣列)');
+    }
+
+    // --- 2D ARRAY CONVERTER (The "Universal Adapter") ---
+    // Handle cases where GAS returns [[A,B,C], [1,2,3]] (Rows) instead of objects
+    if (targetArray.length > 0 && Array.isArray(targetArray[0])) {
+        console.log("Detected 2D Array (Rows). Checking structure...");
+        
+        // 1. Detect if the first row is Headers or Data
+        // Based on screenshot, Row 1 is "t1", "Skyliner...", so it is DATA.
+        // We check for common header keywords to decide.
+        const firstRowStr = targetArray[0].map(x => String(x).toLowerCase());
+        const headerKeywords = ['id', 'name', 'title', 'status', 'type', 'location', 'link', 'item', '名稱', '狀態', '類別'];
+        const hasHeaders = firstRowStr.some(cell => headerKeywords.some(kw => cell.includes(kw)));
+
+        const objArray = [];
+        
+        if (hasHeaders) {
+             // Treat Row 0 as Headers
+             const headers = targetArray[0].map(h => String(h).trim());
+             for (let i = 1; i < targetArray.length; i++) {
+                const row = targetArray[i];
+                const obj = {};
+                headers.forEach((header, colIndex) => {
+                    if (colIndex < row.length) obj[header] = row[colIndex];
+                });
+                objArray.push(obj);
+             }
+             if (!isBackground) showToast(`偵測到表格標題：${headers[0]}...`, 'info');
+        } else {
+             // Treat Row 0 as Data (No Headers) -> Use Fixed Index Mapping
+             // Mapping based on screenshot: A:ID, B:Name, C:Status, D:Type, E:Location, F:Link
+             console.log("No headers detected. Using fixed column mapping.");
+             targetArray.forEach(row => {
+                 objArray.push({
+                     id: row[0],
+                     name: row[1],
+                     status: row[2],
+                     type: row[3],
+                     location: row[4],
+                     link: row[5]
+                 });
+             });
+        }
+        targetArray = objArray;
+    }
+    // ----------------------------------------------------
+
+    // CLOUD FIRST STRATEGY
+    const newTickets = [];
+    const newShopItems = [];
+
+    targetArray.forEach((cloudItem, index) => {
+        // 1. Try Standard Key Lookup (Preferred)
+        let rawId = safeGet(cloudItem, ['id', 'ID', 'itemId', 'item_id', '編號', 'No', 'no', 'uuid']);
+        let rawName = safeGet(cloudItem, ['name', 'Name', 'title', 'Title', '名稱', '項目', 'Item', 'item', '標題']);
+        let rawStatus = safeGet(cloudItem, ['status', 'Status', 'state', '狀態', '情況']);
+        let rawType = safeGet(cloudItem, ['type', 'Type', 'category', '類別', '類型', '分類']);
+        let rawLocation = safeGet(cloudItem, ['location', 'Location', 'place', '地點', '位置', '場所']);
+        let rawLink = safeGet(cloudItem, ['link', 'Link', 'url', '連結', '網址']);
+
+        // 2. Fallback: Smart Index Mapping (If keys are broken/missing)
+        // This handles the case where GAS treated Row 1 (Data) as Header
+        // Example: { "t1": "t2", "Skyliner": "teamLab" } -> "t2" is ID, "teamLab" is Name
+        if (!rawId && !rawName) {
+            const vals = Object.values(cloudItem);
+            // Heuristic: Must have at least a few columns to be valid
+            if (vals.length >= 3) {
+                 rawId = vals[0];       // Col A
+                 rawName = vals[1];     // Col B
+                 rawStatus = vals[2];   // Col C
+                 rawType = vals[3];     // Col D
+                 rawLocation = vals[4]; // Col E
+                 rawLink = vals[5];     // Col F
+            }
+        }
+
+        // 3. Final Fallback for critical fields
+        rawStatus = rawStatus || '待準備';
+        rawType = rawType || '票券';
+        rawLocation = rawLocation || '';
+        rawLink = rawLink || '';
+
+        // If ID is completely missing, generate a consistent fake ID
+        if (!rawId) {
+             if (rawName) {
+                // Generate from name hash
+                rawId = 'gen-' + Math.abs(String(rawName).split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0));
+             } else {
+                // Last resort: use index and timestamp to ensure it exists
+                rawId = `auto-${index}-${Date.now()}`;
+                if (!rawName) rawName = `未命名項目 #${index + 1}`;
+             }
+        }
+        
+        const id = String(rawId);
+        
+        // Skip explicitly deleted
+        if (String(rawStatus).toUpperCase() === 'DELETED') return;
+        
+        // Determine category
+        // 's' prefix = Shop, 't' prefix = Ticket
+        // Or check type/name keywords
+        const isShop = id.toLowerCase().startsWith('s') || 
+                       rawType === '購物' || rawType === 'Shopping' || rawType === 'Shop' ||
+                       (rawName && String(rawName).includes('買'));
+        
+        if (!isShop) {
+            newTickets.push({
+                id: id,
+                type: rawType,
+                name: rawName,
+                location: rawLocation,
+                status: rawStatus,
+                link: rawLink
+            });
+        } else {
+            newShopItems.push({
+                id: id,
+                name: rawName,
+                status: rawStatus
+            });
+        }
+    });
+
+    console.log(`Parsed: ${newTickets.length} tickets, ${newShopItems.length} shop items.`);
+
+    // Diagnostic Toast if array exists but nothing parsed (should be impossible now due to fallbacks)
+    if (targetArray.length > 0 && newTickets.length === 0 && newShopItems.length === 0 && !isBackground) {
+         const firstKeys = Object.keys(targetArray[0]).join(', ');
+         showToast(`欄位不符: [${firstKeys}]`, 'error');
+    }
+
+    tickets = newTickets;
+    shopItems = newShopItems;
+    
+    saveToLocal();
+    renderAll();
+    
+    loadRetryCount = 0;
+    updateSyncStatus('online');
+    
+    if (!isBackground) {
+        const msg = `已同步 ${tickets.length + shopItems.length} 筆資料`;
+        showToast(msg, 'success');
+    }
+
   } catch (err) {
     console.error("Load failed", err);
-    if (!isBackground) updateSyncStatus('offline');
+    if (!isBackground) {
+        updateSyncStatus('offline');
+        showToast(err.message, 'error');
+    }
+    
+    if (loadRetryCount < MAX_RETRIES) {
+        loadRetryCount++;
+        const delay = 1500 * loadRetryCount;
+        if (!isBackground) showToast(`連線失敗，第 ${loadRetryCount} 次重試中...`, 'info');
+        setTimeout(() => loadFromCloud(isBackground), delay);
+    }
   }
 }
 
@@ -271,7 +397,7 @@ function createTicketHTML(t) {
         <div class="w-16 flex flex-col items-center justify-center bg-gray-50/50 py-4"><i data-lucide="${t.type === '交通' ? 'train-front' : 'ticket'}" class="w-5 h-5 text-red-600/30"></i></div>
         <div class="flex-1 p-5 pr-16">
           <h4 class="font-bold text-gray-800 ${isPurchased ? 'line-through text-gray-300' : ''}">${t.name}</h4>
-          <p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-widest">${t.location}</p>
+          <p class="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-widest">${t.location || '未知地點'}</p>
         </div>
         <button id="toggle-t-${t.id}" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 ${isPurchased ? 'text-green-500' : 'text-gray-200'}">
           <i data-lucide="${isPurchased ? 'check-circle' : 'circle'}" class="w-7 h-7"></i>
@@ -284,8 +410,11 @@ function renderTickets() {
   const purchased = document.getElementById('wallet-purchased');
   if (!pending || !purchased) return;
   
-  pending.innerHTML = tickets.filter((t) => t.status !== '已購買').map(createTicketHTML).join('');
-  purchased.innerHTML = tickets.filter((t) => t.status === '已購買').map(createTicketHTML).join('');
+  const pendingItems = tickets.filter((t) => t.status !== '已購買');
+  const purchasedItems = tickets.filter((t) => t.status === '已購買');
+  
+  pending.innerHTML = pendingItems.length ? pendingItems.map(createTicketHTML).join('') : '<div class="text-center py-8 text-gray-300 text-xs font-bold uppercase tracking-widest">暫無待辦項目</div>';
+  purchased.innerHTML = purchasedItems.length ? purchasedItems.map(createTicketHTML).join('') : '<div class="text-center py-8 text-gray-300 text-xs font-bold uppercase tracking-widest">暫無已購項目</div>';
   
   if (window.lucide) window.lucide.createIcons();
   
@@ -304,19 +433,23 @@ function renderShop() {
   const container = document.getElementById('shopping-list-container');
   if (!container) return;
   
-  container.innerHTML = shopItems.map((item) => {
-    const isDone = item.status === '已購買';
-    return `
-      <div class="bg-white p-5 rounded-[20px] flex items-center justify-between shadow-sm border border-gray-100 active:scale-[0.98] transition-all">
-        <div class="flex items-center gap-4">
-          <button id="toggle-s-${item.id}" class="${isDone ? 'text-green-500' : 'text-gray-300'}">
-            <i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-6 h-6"></i>
-          </button>
-          <span class="${isDone ? 'line-through text-gray-300' : ''} font-bold text-sm text-gray-800">${item.name}</span>
-        </div>
-        <button id="del-s-${item.id}" class="text-gray-200 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-      </div>`;
-  }).join('');
+  if (shopItems.length === 0) {
+    container.innerHTML = '<div class="text-center py-10 text-gray-300 text-xs font-bold uppercase tracking-widest">清單是空的</div>';
+  } else {
+    container.innerHTML = shopItems.map((item) => {
+      const isDone = item.status === '已購買';
+      return `
+        <div class="bg-white p-5 rounded-[20px] flex items-center justify-between shadow-sm border border-gray-100 active:scale-[0.98] transition-all">
+          <div class="flex items-center gap-4">
+            <button id="toggle-s-${item.id}" class="${isDone ? 'text-green-500' : 'text-gray-300'}">
+              <i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-6 h-6"></i>
+            </button>
+            <span class="${isDone ? 'line-through text-gray-300' : ''} font-bold text-sm text-gray-800">${item.name}</span>
+          </div>
+          <button id="del-s-${item.id}" class="text-gray-200 hover:text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </div>`;
+    }).join('');
+  }
   
   if (window.lucide) window.lucide.createIcons();
 
@@ -346,18 +479,23 @@ function initializeApp() {
   console.log('Initializing App...');
   if (window.lucide) window.lucide.createIcons();
   
-  // Initial map call with timeout to ensure DOM is ready
   setTimeout(() => {
     initMap();
   }, 500);
 
-  renderAll();
+  // 5. Initialization Fix: Clear list and sync
+  tickets = [];
+  shopItems = [];
+  renderAll(); // Shows empty state initially
+  
+  showToast('正在從雲端同步...', 'info');
+  loadRetryCount = 0;
   loadFromCloud();
 
-  // Start polling every 3 seconds
+  // Start polling every 5 seconds
   setInterval(() => {
     loadFromCloud(true);
-  }, 3000);
+  }, 5000);
 
   // Scroll effect for floating navbar
   let lastScrollY = 0;
@@ -366,13 +504,11 @@ function initializeApp() {
     const nav = document.getElementById('floating-nav');
     if (!nav) return;
     
-    // Determine scroll position based on event target or window
     let currentScrollY = window.scrollY;
     if (e.target && e.target.scrollTop !== undefined) {
        currentScrollY = e.target.scrollTop;
     }
     
-    // Hide when scrolling down, show when scrolling up
     if (currentScrollY > lastScrollY && currentScrollY > 60) {
       nav.classList.add('nav-hidden');
     } else {
@@ -381,11 +517,9 @@ function initializeApp() {
     lastScrollY = currentScrollY > 0 ? currentScrollY : 0;
   };
 
-  // Listen to both window and the itinerary sheet
   window.addEventListener('scroll', handleScroll, { passive: true });
   document.getElementById('itinerary-content-sheet')?.addEventListener('scroll', handleScroll, { passive: true });
 
-  // Navigation Click Handlers
   ['itinerary', 'wallet', 'shopping'].forEach(view => {
     const btn = document.getElementById(`nav-${view}`);
     btn?.addEventListener('click', (e) => {
@@ -397,7 +531,6 @@ function initializeApp() {
       if (targetView) targetView.classList.add('active');
       btn.classList.add('active');
       
-      // Reset navbar state on view switch
       lastScrollY = 0;
       document.getElementById('floating-nav')?.classList.remove('nav-hidden');
 
@@ -408,7 +541,6 @@ function initializeApp() {
         }, 100);
       }
       
-      // Scroll handling for view switch
       if (view === 'itinerary') {
         const sheet = document.getElementById('itinerary-content-sheet');
         if (sheet) sheet.scrollTo({ top: 0, behavior: 'smooth' });
@@ -418,7 +550,6 @@ function initializeApp() {
     });
   });
 
-  // Day Switching Handlers
   [1, 2, 3, 4, 5].forEach(day => {
     const btn = document.getElementById(`btn-day-${day}`);
     btn?.addEventListener('click', (e) => {
@@ -435,7 +566,6 @@ function initializeApp() {
     });
   });
 
-  // Settings Modal Handlers
   document.getElementById('settings-trigger')?.addEventListener('click', () => {
     document.getElementById('settings-modal')?.classList.add('active');
     const input = document.getElementById('gas-url-input');
@@ -451,35 +581,41 @@ function initializeApp() {
     GAS_URL = (input && input.value) ? input.value : DEFAULT_GAS_URL;
     localStorage.setItem('gas_url', GAS_URL);
     document.getElementById('settings-modal')?.classList.remove('active');
+    loadRetryCount = 0; 
+    // Clear list to force fresh sync visual
+    tickets = [];
+    shopItems = [];
+    renderAll();
     loadFromCloud();
     showToast('設定已儲存', 'success');
   });
 
   document.getElementById('manual-sync-btn')?.addEventListener('click', () => {
+    loadRetryCount = 0;
     loadFromCloud();
     showToast('同步中...', 'info');
   });
 
-  // Shopping Add Handler
   document.getElementById('add-shop-btn')?.addEventListener('click', () => {
     const input = document.getElementById('shop-input');
     if (!input || !input.value.trim()) return;
     const newItem = { id: 's' + Date.now(), name: input.value.trim(), status: '未購買' };
+    
+    // Add locally for responsiveness, will be overwritten by cloud later
     shopItems.push(newItem);
     input.value = '';
     saveToLocal();
     renderShop();
+    
     syncToCloud(newItem);
     showToast('已新增至清單', 'success');
   });
 
-  // Map Reset View
   document.getElementById('reset-map')?.addEventListener('click', () => {
     renderMap(currentDay);
   });
 }
 
-// Robust Readiness Check
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
