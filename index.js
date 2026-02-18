@@ -115,7 +115,7 @@ async function syncToCloud(item) {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(item)
     });
-    // Optimistic success visual
+    // Optimistic success visual - but we rely on next poll for full sync
     setTimeout(() => {
       if (document.getElementById('sync-text').innerText === 'SYNCING') {
          updateSyncStatus('online');
@@ -133,11 +133,19 @@ async function loadFromCloud(isBackground = false) {
   if (!isBackground) updateSyncStatus('syncing');
 
   try {
-    // Add cache busting
-    const response = await fetch(`${GAS_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    // Robust Cache Busting: Add a timestamp parameter that is guaranteed to be unique
+    const separator = GAS_URL.includes('?') ? '&' : '?';
+    const noCacheUrl = `${GAS_URL}${separator}_nocache=${Date.now()}`;
+    
+    // Use no-store to tell browser not to cache
+    const response = await fetch(noCacheUrl, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const cloudData = await response.json();
+    
+    // Debug Log: Check the console to see exactly what comes from Google Sheets
+    console.log("☁️ [Cloud Data]", cloudData);
+
     let hasChanges = false;
 
     if (Array.isArray(cloudData)) {
@@ -146,18 +154,18 @@ async function loadFromCloud(isBackground = false) {
         if (!id) return;
         
         // 1. Handle Tickets
-        // Use loose equality (==) to handle potential string/number mismatches from JSON
+        // Use loose equality (==) for ID matching to handle number vs string differences
         const tIdx = tickets.findIndex((t) => t.id == id);
         if (tIdx !== -1) {
           if (tickets[tIdx].status !== cloudItem.status) {
+            console.log(`Update Ticket ${id}: ${tickets[tIdx].status} -> ${cloudItem.status}`);
             tickets[tIdx].status = cloudItem.status;
             hasChanges = true;
           }
-          return; // Processed as ticket
+          return; 
         }
 
         // 2. Handle Shop Items
-        // Ensure ID is treated as string for check
         if (String(id).startsWith('s')) {
           const sIdx = shopItems.findIndex((s) => s.id == id);
           
@@ -168,14 +176,14 @@ async function loadFromCloud(isBackground = false) {
             }
           } else {
             if (sIdx !== -1) {
-              // Update existing only if changed
+              // Update existing
               if (shopItems[sIdx].status !== cloudItem.status || (cloudItem.name && shopItems[sIdx].name !== cloudItem.name)) {
                 shopItems[sIdx].status = cloudItem.status;
                 if (cloudItem.name) shopItems[sIdx].name = cloudItem.name;
                 hasChanges = true;
               }
             } else {
-              // Add new item
+              // Add new item from cloud
               shopItems.push({
                 id: id,
                 name: cloudItem.name || '未命名商品',
@@ -190,18 +198,19 @@ async function loadFromCloud(isBackground = false) {
       if (hasChanges) {
         saveToLocal();
         renderAll();
-        if (isBackground) console.log('Synced data from cloud');
+        if (isBackground) console.log('Synced updated data from cloud');
       }
       
       updateSyncStatus('online');
       
-      // Feature request: Toast on manual load
+      // Force toast on manual load (non-background), even if no changes detected, 
+      // so user knows the system is working.
       if (!isBackground) {
         showToast('雲端已同步', 'success');
       }
     }
   } catch (err) {
-    console.error(err);
+    console.error("Load failed", err);
     if (!isBackground) updateSyncStatus('offline');
   }
 }
